@@ -409,8 +409,8 @@ interactive(){
     [[ ! -d "$HOME" ]] && { echo -e "E: Home is not a dir" ; return ; }
 
     result="$( echo -e \
-        "E17\n""$( eval_gettext "Your Desktop. Includes minimizer, pager, bar, features, and all the gagdets" )""\n"\
-        "E17 Confs\n""$( eval_gettext "Your Desktop. Only configurations (not include wallpapers, themes, etc)" )""\n"\
+        "E17\n""$( eval_gettext "Your Desktop. Includes minimizer, pager, bar, features, and all the gadgets" )""\n"\
+        "E17 Confs\n""$( eval_gettext "Your Desktop. Only configurations (doesn't include wallpapers, themes, etc)" )""\n"\
         "Thunar\n""$( eval_gettext "Your File manager and Browser. Includes features and actions" )""\n"\
         "Bash\n""$( eval_gettext "Bash (shell) Configurations" )""\n"\
         "Compiz\n""$( eval_gettext "Compiz (ecomorph) configurations" )""\n"\
