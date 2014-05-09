@@ -53,7 +53,8 @@ fi
 
 if [[ ! -f /etc/elive-version ]] ; then
     dialog --clear --colors --backtitle "Elive Systems"  --title "$( eval_gettext "Elive Reparation" )"  \
-        --msgbox "$( eval_gettext "The Elive Reparation mode is a special recovery tool for the end-user." )"  14 60
+        --msgbox "$( eval_gettext "The Elive Reparation mode is a special recovery tool for the end-user." )"  \
+        14 60
 fi
 
 check_module_installer_result="$(/usr/lib/eliveinstaller/check-installer-module)"
@@ -61,7 +62,7 @@ if [[ -z "$check_module_installer_result" ]] ; then
     check_module_installer_result="$( eval_gettext "No results obtained." )"
    dialog --clear --colors --backtitle "Elive Systems" \
        --title "$( eval_gettext "Elive Reparation" )" \
-       --msgbox "$( eval_gettext "It has been detected that your Elive system is not correctly installed, please install Elive again. If the problem persists, report this error message from Reparation mode to Elive." )""\n\n""http://bugs.elivecd.org""\n\n""$( eval_gettext "Result obtained:" )"" $check_module_installer_result" \
+       --msgbox "It has been detected that your Elive system is not correctly installed, please install Elive again. If the problem persists, report this error message from Reparation mode to Elive.\n\nhttp://bugs.elivecd.org\n\nResult obtained: $check_module_installer_result" \
       14 60
    log_action_end_msg 1
    sleep 1
@@ -73,7 +74,7 @@ if [[ -z "$check_module_installer_result" ]] ; then
    if [[ -z "$results" ]] ; then
       dialog --clear --colors --backtitle "Elive Systems" \
           --title "$( eval_gettext "Elive Reparation" )" \
-          --msgbox "$( eval_gettext "The installer-module check has failed, this can be due to a botched install. If you think that this is a bug in Elive, please report it to:" )"" http://bugs.elivecd.org \n\n""$( eval_gettext "And include this data in your report:" )""\n$check_module_installer_result" \
+          --msgbox "The installer-module check has failed, this can be due to a botched install. If you think that this is a bug in Elive, please report it to: http://bugs.elivecd.org \n\nAnd include this data in your report:\n$check_module_installer_result" \
          14 60
       log_action_end_msg 1
       sleep 1
