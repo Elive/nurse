@@ -1,35 +1,55 @@
 #!/bin/bash
-# FIXME: rewrite entirely this crap :P
-lugar="$(pwd)"
-defaultuser="eliveuser"
-export TEXTDOMAIN="nurse"
+source /etc/adduser.conf
+source /usr/lib/elive-tools/functions
+#el_make_environment
+. gettext.sh
+TEXTDOMAIN="nurse"
+export TEXTDOMAIN
 
-messageexitx(){
-    [[ -n $DISPLAY && -f /usr/bin/zenity ]] && zenity --error --text="Sorry, you need to exit from the graphical system or close the program of you like to upgrade, if you need to exit from the graphical system, you need to login in pure console ( Control-Alt-F1 from entrance and Control-Alt-F9 for return to entrance ) and with your user type: elive-skel upgrade"
-    [[ -n $DISPLAY ]] && echo "Sorry, you need to exit from the graphical system for upgrade this configuration and open a terminal in pure console ( Control-Alt-F1 from entrance and Control-Alt-F9 for return to entrance ) and with your user type: elive-skel upgrade"
+defaultuser="eliveuser"
+
+
+show_message_exit_x11(){
+    local message_exit
+    message_exit="$( printf "$( eval_gettext "Sorry, you need to exit from the graphical system or close the program of you like to upgrade, if you need to exit from the graphical system, you need to login in pure console ( Control-Alt-F1 from entrance and Control-Alt-F9 for return to entrance ) and with your user type: elive-skel upgrade" )" )"
+
+    if [[ -n "$DISPLAY" && -f /usr/bin/zenity ]] ; then
+        zenity --error --text="$message_exit"
+    else
+        echo "$message_exit"
+    fi
     exit 1
 }
 
-messagedone(){
-    [[ -n $DISPLAY && -f /usr/bin/zenity ]] && zenity --info --text="Upgrade done, try now to restart the application"
-    [[ -z $DISPLAY ]] && echo "Upgrade done, try now to restart the application"
+show_message_done(){
+    local message_done
+    message_done="$( printf "$( eval_gettext "Upgrade done, try now to restart the application" )" )"
+
+    if [[ -n "$DISPLAY" && -f /usr/bin/zenity ]] ; then
+        zenity --info --text="$message_done"
+    else
+        echo "$message_done"
+    fi
 }
 
-messagenoselect(){
-    [[ -n $DISPLAY && -f /usr/bin/zenity ]] && zenity --info --text="You don't have selected correctly a configuration, no upgrade done, try again."
-    [[ -z $DISPLAY ]] && echo "You don't have selected correctly a configuration, no upgrade done, try again."
+show_message_required_select(){
+    if [[ -n "$DISPLAY" && -f /usr/bin/zenity ]] ; then
+        zenity --info --text="$( eval_gettext "You don't have selected correctly a configuration, no upgrade done, try again." )"
+    else
+        echo "$( eval_gettext "You don't have selected correctly a configuration, no upgrade done, try again." )"
+    fi
     exit 1
 }
 
 
 upgradegraphical(){
-    [[ -n $2 ]] && return
+    [[ -n "$2" ]] && return
     nameconf="$( ls -a /etc/skel | egrep "\\." | egrep -v "\\.$" | zenity --list --text='Select a personal configuration for upgrade' --column='Configuration' || echo cancel ; )"
     [[ "$nameconf" = "cancel" ]] && exit 1
-    [[ "$nameconf" = "" ]] && { messagenoselect ; exit 1 ; }
-    ps aux | grep e16 | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep e16 && [[ "$nameconf" = ".e16" ]] && messageexitx
-    ps aux | grep enlightenment | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep enlightenment && [[ "$nameconf" = ".e" ]] && messageexitx
-    ps aux | grep xchat | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep xchat && [[ "$nameconf" = ".xchat2" ]] && messageexitx
+    [[ "$nameconf" = "" ]] && { show_message_required_select ; exit 1 ; }
+    ps aux | grep e16 | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep e16 && [[ "$nameconf" = ".e16" ]] && show_message_exit_x11
+    ps aux | grep enlightenment | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep enlightenment && [[ "$nameconf" = ".e" ]] && show_message_exit_x11
+    ps aux | grep xchat | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep xchat && [[ "$nameconf" = ".xchat2" ]] && show_message_exit_x11
 }
 
 upgradeconsole(){
@@ -38,76 +58,99 @@ upgradeconsole(){
     ls -a /etc/skel/ | egrep "\\." | egrep -v "\\.$" | more
     echo -e "Enter the name of one configuration for upgrade"
     read nameconf
-    [[ "$nameconf" = "" ]] && { messagenoselect ; exit 1 ; }
-    ps aux | grep e16 | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep e16 && [[ "$nameconf" = ".e16" ]] && messageexitx
-    ps aux | grep enlightenment | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep enlightenment && [[ "$nameconf" = ".e" ]] && messageexitx
-    ps aux | grep xchat | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep xchat && [[ "$nameconf" = ".xchat2" ]] && messageexitx
+    [[ "$nameconf" = "" ]] && { show_message_required_select ; exit 1 ; }
+    ps aux | grep e16 | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep e16 && [[ "$nameconf" = ".e16" ]] && show_message_exit_x11
+    ps aux | grep enlightenment | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep enlightenment && [[ "$nameconf" = ".e" ]] && show_message_exit_x11
+    ps aux | grep xchat | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep xchat && [[ "$nameconf" = ".xchat2" ]] && show_message_exit_x11
 }
 
 upgradedirect(){
     unset DISPLAY
-    nameconf=$2
+    nameconf="$2"
 }
 
 upgradefromroot(){
-    [[ ! "$UID" == "0" ]] && { echo -e "You need root for this option" && exit 1 ; }
-    direlegido=$( awk -v usuario=$3 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd )
+    local usuario direlegido
+    #nameconf="$2"
 
-    if [[ -z $direlegido ]] ; then
-        echo -e "variable \$direlegido not exists, exiting..."
+    [[ "$UID" != "0" ]] && { echo -e "You need root for this option" && exit 1 ; }
+
+    direlegido=$( awk -v usuario="$3" 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd )
+
+    if [[ -z "$direlegido" ]] || ! el_check_dirs "$direlegido" ; then
+        el_error "homedir of user not found, exiting..."
         exit 1
     fi
 
-    if [[ -z $nameconf ]] ; then
-        echo -e "variable \$nameconf not exists, exiting..."
+    if [[ -z "$nameconf" ]] ; then
+        el_error "nameconf empty, exiting..."
         exit 3
     fi
 
-    rm -rf $direlegido/$nameconf.old
-    mv $direlegido/$nameconf $direlegido/$nameconf.old # backuping the old one
+    rm -rf "$direlegido/$nameconf.old"
+    mv "$direlegido/$nameconf" "$direlegido/$nameconf.old" # backuping the old one
 
-    if ! cp -Rp /etc/skel/$nameconf $direlegido/ ; then
-        echo "Not posible to copy to the HOME dir of $3"
-        exit 4
+    if [[ -e "/etc/skel/$nameconf" ]] ; then
+        if cp -Rp "/etc/skel/$nameconf" "$direlegido/" ; then
+            convert_dir "$3" "$direlegido/$nameconf"
+        else
+            el_error "Not posible to copy to the HOME dir of $3 ($direlegido)"
+            exit 4
+        fi
+    else
+        el_error "/etc/skel/$nameconf doesn't exist"
+        exit 5
     fi
 
-    find $direlegido/$nameconf -type f -exec sed -i "s,/home/$defaultuser,$direlegido,g" '{}' \;
-    find $direlegido/$nameconf -type f -exec sed -i "s,$defaultuser,$3,g" '{}' \;
 
-    case $nameconf in
+    case "$nameconf" in
         .config)
-            cp -a ${direlegido}/.config.old/xpad/* ${direlegido}/.config/xpad/
-            cp -a ${direlegido}/.config.old/transmission ${direlegido}/.config/
+            # TODO: actually .config is much bigger, most of the apps confs comes from here, so it will need an independent structure
+            mkdir -p "$direlegido/.config/xpad"
+            cp -a "${direlegido}/.config.old/xpad/*" "${direlegido}/.config/xpad/"
+
+            mkdir -p "$direlegido/.config/transmission"
+            cp -a "${direlegido}/.config.old/transmission/*" "${direlegido}/.config/transmission/" 2>/dev/null
             ;;
         .e)
             # Note: only for root mode (installer upgrade), if is done by the user, ask if want a full update
-            cp -a ${direlegido}/.e.old/e/applications/bar/default/.order ${direlegido}/.e/e/applications/bar/default/.order 2>/dev/null
-            cp -a ${direlegido}/.e.old/e/backgrounds/* ${direlegido}/.e/backgrounds/ 2>/dev/null
-            cp -a ${direlegido}/.e.old/e/themes/* ${direlegido}/.e/themes/ 2>/dev/null
+            cp -a "${direlegido}/.e.old/e/applications/bar/default/.order" "${direlegido}/.e/e/applications/bar/default/.order" 2>/dev/null
+            cp -a "${direlegido}/.e.old/e/backgrounds/*" "${direlegido}/.e/backgrounds/" 2>/dev/null
+            cp -a "${direlegido}/.e.old/e/themes/*" "${direlegido}/.e/themes/" 2>/dev/null
             ;;
     esac
 
-    if [ -z "$4" ]; then
-        chown -R $3:$3 $direlegido/$nameconf
+    if [[ -z "$4" ]] ; then
+        chown -R "$3:$3" "$direlegido/$nameconf"
     else
-        chown -R $3:$4 $direlegido/$nameconf
+        chown -R "$3:$4" "$direlegido/$nameconf"
     fi
 
     exit
 }
 
 upgradetype(){
-    [[ -n $2 ]] && upgradedirect $*
-    [[ -n $3 ]] && upgradefromroot $*
-    if [[ -n $DISPLAY && -f /usr/bin/zenity ]] ; then
+    # $2 = conf, $3 = user, $4 = group
+    if [[ -n "$2" ]] ; then
+        # we unset display because we don't want to show the GUI if we have the enough data to use (refactor this someday)
+        unset DISPLAY
+        nameconf="$2"
+    fi
+
+    if [[ -n "$3" ]] ; then
+        upgradefromroot "$@"
+    fi
+
+    if [[ -n "$DISPLAY" && -f /usr/bin/zenity ]] ; then
         zenity --info --text='Make sure of the program of you like to upgrade, is closed before continue'
     else
         echo -e "Make sure of the program of you like to upgrade, is closed before continue"
     fi
+
     #      [[ -n $DISPLAY && -f /usr/bin/zenity ]] || echo -e "Select a conf name (included the point) for upgrade"
-    [[ -n $DISPLAY && -f /usr/bin/zenity ]] && upgradegraphical $*
-    [[ -n $DISPLAY && -f /usr/bin/zenity ]] || upgradeconsole $*
-    [[ -z $nameconf ]] && { messagenoselect ; exit 1 ; }
+    [[ -n $DISPLAY && -f /usr/bin/zenity ]] && upgradegraphical "$@"
+    [[ -n $DISPLAY && -f /usr/bin/zenity ]] || upgradeconsole "$@"
+    [[ -z $nameconf ]] && { show_message_required_select ; exit 1 ; }
     [[ -e $HOME/$nameconf.old ]] && rm -rf $HOME/$nameconf.old
     mv $HOME/$nameconf $HOME/$nameconf.old
 
@@ -120,7 +163,7 @@ upgradetype(){
         fi
     fi
 
-    case $nameconf in
+    case "$nameconf" in
         .config)
             cp -a $HOME/.config.old/xpad/* $HOME/.config/xpad/
             cp -a $HOME/.config.old/transmission $HOME/.config/
@@ -137,9 +180,9 @@ upgradetype(){
             ;;
     esac
 
-    #       [ "$nameconf" = ".elxstrt" ] && { messagedone ; exit 0 ; }
+    #       [ "$nameconf" = ".elxstrt" ] && { show_message_done ; exit 0 ; }
 
-    find $HOME/$nameconf -type f -exec sed -i "s,/home/$defaultuser,$HOME,g" '{}' \;
+    find $HOME/$nameconf -type f -exec sed -i "s,${DHOME}/$defaultuser,$HOME,g" '{}' \;
     find $HOME/$nameconf -type f -exec sed -i "s,$defaultuser,$USER,g" '{}' \;
 
     #       [ "$nameconf" = ".xchat2" ] && { sed -i "s/J=#$USER.*$/J=#elive\,#elivefun/" $HOME/.xchat2/servlist_.conf 2>/dev/null ; }
@@ -147,10 +190,11 @@ upgradetype(){
     chown -R $USER $HOME/$nameconf
     chgrp -R $USER $HOME/$nameconf
 
-    messagedone
+    show_message_done
 }
 
 usermode(){
+    # $2 = user, $3 = group
     [[ ! "$UID" == "0" ]] && { echo -e "You need root for this option" && exit 1 ; }
     [[ -z "$2" ]] && { echo -e "No USERNAME parameter in \$2, exiting..." && exit 1 ; }
     direlegido=`awk -v usuario=$2 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd`
@@ -163,7 +207,7 @@ usermode(){
         [[ -z $i ]] && continue
         rm -rf $i
         cp -Rp /etc/skel/$i .
-        find $direlegido/$i -type f -exec sed -i "s,/home/$defaultuser,$direlegido,g" '{}' \;
+        find $direlegido/$i -type f -exec sed -i "s,${DHOME}/$defaultuser,$direlegido,g" '{}' \;
         find $direlegido/$i -type f -exec sed -i "s,$defaultuser,$2,g" '{}' \;
 
         #        [[ "$i" = ".elxstrt" ]] && continue
@@ -179,22 +223,111 @@ usermode(){
     done
 }
 
+#===  FUNCTION  ================================================================
+#          NAME:  convert_dir
+#   DESCRIPTION:  convert all the files found
+#    PARAMETERS:  $1 = user-to, $2 = target
+#       RETURNS:
+#===============================================================================
+convert_dir(){
+    # pre {{{
+    local user target file
+    el_debug
+    el_security_function_loop 20 || return
+
+    username="$1"
+    target="$2"
+    el_check_variables "username,target,defaultuser"
+
+    if ! [[ -d "$target" ]] ; then
+        el_debug "$target is not a dir? ignoring..."
+        return
+    fi
+
+    # }}}
+
+    # only for the files found in skel
+    while read -ru 3 file
+    do
+        if grep -qs "$defaultuser" "$file" ; then
+            sed -i "s|$defaultuser|$username|g" "$file"
+            el_debug "exporting configurations for user $username and file $file"
+        fi
+    done 3<<< "$( find "$target" -type f | grep -viE "\.(mp3|avi|mpg|wav|ogg|mkv|torrent|pdf|epub|doc|jpg|odt)$" )"
+
+    # rename files / dirs
+    while read -ru 3 file
+    do
+        if [[ "$file" = *"${defaultuser}"* ]] ; then
+            # FIXME: perl dependency
+            rename "s|$defaultuser|$username|" "$file"
+
+            el_debug "renaming $file with $username"
+        fi
+    done 3<<< "$( find "$target" )"
+
+}
+
+#===  FUNCTION  ================================================================
+#          NAME:  convert_all_files
+#   DESCRIPTION:  convert all the files found
+#    PARAMETERS:  $1 = user-to
+#       RETURNS:
+#===============================================================================
+convert_all_files(){
+    # pre {{{
+    local user target file
+    el_debug
+    el_security_function_loop 20 || return
+
+    username="$1"
+    el_check_variables "username,target,defaultuser"
+    el_check_dirs "$target"
+
+    # }}}
+
+    # only for the files found in skel
+    while read -ru 3 file
+    do
+        file="${file#/etc/skel/}"
+        sed -i "s|$defaultuser|$username|g" "$DHOME/$username/$file"
+
+        el_debug "exporting configurations for user $username and file $file"
+    done 3<<< "$( find /etc/skel -type f | grep -viE "\.(mp3|avi|mpg|wav|ogg|mkv|torrent|pdf|epub|doc|jpg|odt)$" )"
+
+}
+
 
 alltype(){
-    # esta opcion se lanza como root, entra en el home y cambia todas las palabras de "elive" al usuario del nombre del home, excepto:
-    # el canal del xchat donde tiene que entrar
+    # run from root, no ptions, it changes all the keywords of eliveuser to the new user in every home, warning!
+    local file i
+
     [[ "$UID" == "0" ]] || { echo -e "You need root for this option" && exit 1 ; }
-    cd /home
-    for i in `ls -1`
+
+    cd "${DHOME}"
+    #for i in `ls -1`
+    for i in $(find "$DHOME" -mindepth 1 -maxdepth 1 -type d )
     do
-        echo "exporting configurations from the user $defaultuser to $i..."
-        find $i -type f -exec sed -i "s/$defaultuser/$i/g" '{}' \;
-        #	sed -i "s/J=#$i.*$/J=#elive\,#elivefun/" /home/$i/.xchat2/servlist_.conf 2>/dev/null
-        #	sed -i "s/$i.edj/elive.edj/g" /home/$i/.e/e/config/default/e.cfg 2>/dev/null
+        username="$( basename "$i" )"
+        #echo "exporting configurations from the user $defaultuser to ${username}..."
+
+        convert_all_files "$username"
+
+        # rename files / dirs
+        while read -ru 3 file
+        do
+            if [[ "$file" = *"${defaultuser}"* ]] ; then
+                # FIXME: perl dependency
+                rename "s|$defaultuser|$username|" "$file"
+
+                el_debug "renaming $file with $username"
+            fi
+        done 3<<< "$( find "$DHOME/$username" )"
     done
 }
 
 addmode(){
+    # $1 = (mode), $2 = conf, $3 = username
     if [[ -z $3 ]] ; then
         echo -e "Usage: `basename $0` add conf username"
         exit
@@ -220,7 +353,7 @@ interactive_tools(){
     rm -rf "${homeid}.old" 2>/dev/null
     mv "${homeid}" "${homeid}.old"
     cp -Rp "/etc/skel/${id}" "$homeid" || zenity --error --text="Error found by copy '$id' to the user"
-    find "$homeid" -type f -exec sed -i "s,/home/${defaultuser},${HOME},g" '{}' \;
+    find "$homeid" -type f -exec sed -i "s,${DHOME}/${defaultuser},${HOME},g" '{}' \;
     find "$homeid" -type f -exec sed -i "s,${defaultuser},${USER},g" '{}' \;
     chown -R "$USER" "$homeid"
     chgrp -R "$USER" "$homeid"
@@ -298,7 +431,7 @@ interactive(){
             sleep 1 ; zenity --info
             ;;
         Other)
-            upgradetype $*
+            upgradetype "$@"
             ;;
         cancel|Exit)
             return 0
@@ -319,16 +452,16 @@ interactive(){
 #-------------------------------------------------------------------------------
 
 
-case $1 in
-    upgrade|-upgrade|--upgrade) upgradetype $*
+case "$1" in
+    upgrade|-upgrade|--upgrade) upgradetype "$@"
         ;;
     interactive) interactive "$@"
         ;;
-    all|-all|--all) alltype $*
+    all|-all|--all) alltype "$@"
         ;;
-    user|-user|--user) usermode $*
+    user|-user|--user) usermode "$@"
         ;;
-    add|-add|--add) addmode $*
+    add|-add|--add) addmode "$@"
         ;;
     *)
         echo -e "Use: \"elive-skel all\" for  ADAPT the configurations for all users"
@@ -340,4 +473,6 @@ case $1 in
 esac
 
 
+
+# vim: set foldmethod=marker :
 
