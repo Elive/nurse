@@ -52,7 +52,8 @@ if [[ "$UID" != "0" ]] ; then
 fi
 
 if [[ ! -f /etc/elive-version ]] ; then
-    dialog --clear --colors --backtitle "Elive Systems"  --title "$( eval_gettext "Elive Reparation" )"  --msgbox "$( eval_gettext "The Elive Reparation mode is a special recovery tool for the end-user, for more information about Elive please visit:" )"" http://www.elivecd.org"       14 60
+    dialog --clear --colors --backtitle "Elive Systems"  --title "$( eval_gettext "Elive Reparation" )"  \
+        --msgbox "$( eval_gettext "The Elive Reparation mode is a special recovery tool for the end-user. For more information about Elive please visit" )"" http://www.elivecd.org"       14 60
 fi
 
 check_module_installer_result="$(/usr/lib/eliveinstaller/check-installer-module)"
@@ -113,7 +114,7 @@ root_pass_request(){
    root_pass_request_try && return 0
    root_pass_request_try && return 0
    echo -e "\n\n""$( eval_gettext "All the attempts have failed, maybe your keyboard has a problem?" )"
-   echo -en "$( eval_gettext "You can check this by simply typing the password here:" )"" "
+   echo -en "$( eval_gettext "You can check this by simply typing the password here" )"
    read nada ; unset nada
    return 1
 }
