@@ -382,8 +382,8 @@ do_kernel_install_new(){
 #       RETURNS:
 #===============================================================================
 do_wifi_configure(){
-    $guitool --info --text="$( eval_gettext "Some wireless cards are not provided with Linux drivers. This is the fault of the manufacturer. It is very bad service not to provide you with a driver for the product you paid for (are you going to buy a device without drivers for windows?). This problem exists for some devices in MacOsX as well. You can help to get drivers for GNU/Linux by emailing the manufacturer requesting a driver for Linux. " )"
-    $guitool --info --text="$( eval_gettext "There's only 2 things that you can do in order to make your Wireless card working, the first one is to install the linux driver, by compile it yourself maybe, the best way to do that is by just searching in google your device card name and the word linux and see if there's drivers for linux for it, you will found the instructions about how to install it too. The second solution is less recommended because with some devices exist the possibility to make your computer unstable, so you can have an entire crash on your system (very bad for your data) due to this, or maybe you can have it working without problems at all, this second option is to use the original drivers of Windows with Ndiswrapper, so use it at your own risk and knowing about this problem. A third solution is to buy a USB wireless device that is correctly supported in Linux (search that in google) and use it instead" )"
+    $guitool --info --text="$( eval_gettext "Some wireless cards are not provided with Linux drivers. Unfortunately, we cant do much about this since real fault is of the manufacturers. It's not very good service (actually, it's very bad) not to provide you with a driver for the product you paid for so you can use it the way you want to (are you going to buy a device without drivers for Windows?). This problem exists for some devices in MacOsX as well. You can help to get drivers for GNU/Linux by emailing the manufacturer requesting a driver for Linux. " )"
+    $guitool --info --text="$( eval_gettext "There are 2 methods that you can do in order to get your wireless card working. The first one is to install the Linux driver by compiling it yourself. The best way to do this is to search in Google the name of your device card name and the word Linux to see if there are Linux drivers for it. You will find the instructions about how to install it too. The second solution is not recommended because with some devices there is a possibility that it will make your computer unstable...you can have an entire crash on your system and you may lose data due to this. However, you may have it working without problems at all. This second option is to use the original drivers of Windows with Ndiswrapper. Use this at your own risk and knowing about this problem. A third solution is to buy a USB wireless device that is correctly supported in Linux (search for one in Google) and use that card instead." )"
     $guitool --question --text="$( eval_gettext "The next step is to configure Ndiswrapper in order to install the driver for your wireless card in case that you have no other options, are you going to continue?" )" || return 0
 
     mkdir -p /tmp/ndiswrapper/cab
@@ -468,7 +468,7 @@ do_remove_win_apps(){
 #       RETURNS:
 #===============================================================================
 do_remove_menu_apps(){
-    $guitool --question --text="$( eval_gettext "This tool is for removal of the application entries of your menus, sometimes they are badly written and you may need to remove them in order to have them working correctly. Do you want to continue?" )" || return
+    $guitool --question --text="$( eval_gettext "This tool is for removal of the application entries of your menus. Sometimes they are badly written and you may need to remove them in order to have them working correctly. Do you want to continue?" )" || return
     result="$( ls -1 $DHOME | $guitool --list --column="$( eval_gettext "User" )" --text="$( eval_gettext "Select the desired user" )" || echo cancel )"
 
     check_result_guitool $result || return
@@ -526,7 +526,7 @@ done
 #       RETURNS:
 #===============================================================================
 do_update_configurations(){
-    $guitool --question --text="$( eval_gettext "This tool is to reset the user configurations to the defaults set by Elive, your configuration for such application will be erased, do you want to continue?" )" || return
+    $guitool --question --text="$( eval_gettext "This tool is to reset the user configurations to the defaults set by Elive. Your configuration for those applications will be erased. Do you want to continue?" )" || return
 
     result="$( ls -1 $DHOME | $guitool --list --column="$( eval_gettext "User" )" --text="$( eval_gettext "Select the desired user" )" || echo cancel )"
 
@@ -550,7 +550,7 @@ do_update_configurations(){
 #       RETURNS:
 #===============================================================================
 do_recover_configuration(){
-    $guitool --question --text="$( eval_gettext "This tools is for recovery of an old updated configuration, there's no history so you can recover it only to the last updated one. Do you want to continue?" )" || return
+    $guitool --question --text="$( eval_gettext "This tools is for recovery of an old updated configuration. There's no history so you can recover it only to the last updated one. Do you want to continue?" )" || return
 
     result="$( ls -1 $DHOME | $guitool --list --column="$( eval_gettext "User" )" --text="$( eval_gettext "Select the desired user" )" || echo cancel )"
 
@@ -742,7 +742,7 @@ gui_main_menu(){
             $guitool --info --text="$( eval_gettext "For torrents: You need to add again the torrent files to the new application, for continue your downloads just copy the data of your semi-downloaded torrents to the new application temporal files" )"
             ;;
         Translations)
-            $guitool --info --text="$( eval_gettext "You are welcome to collaborate with Elive by making translations, for that you just need to run the application 'eltrans', remember that you do not need to do the translations entirely, so that a small part of the work done by many users results in a big end result. Remember too that the English translations are the most important ones, in order to translate the Elive system to a more correct english just do the translations to the 'en' language, remember too that all the other translations are based on these english ones. Thanks a lot for your collaboration." )"
+            $guitool --info --text="$( eval_gettext "You are welcome to collaborate with Elive by making translations, for that you just need to run the application 'eltrans'. Remember that you don't need to do the translations entirely. A small part of the work done by many users results in a big end result. Remember also that the English translations are the most important ones cause all the other translations are based on these English ones. In order to translate the Elive system to a more correct English just do the translations to the 'en' language and correct the faults. Thanks a lot for your collaboration." )"
             ;;
         cancel|Exit)
             return 0
