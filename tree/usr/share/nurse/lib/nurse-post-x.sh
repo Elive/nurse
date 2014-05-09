@@ -190,7 +190,7 @@ do_cleanup_system(){
             userlist="$userlist $user"
         done
         rm -rf /root/.local/share/Trash/* 2>/dev/null
-        $guitool --info --text=$"Trash cleaned for the users: ${userlist}"
+        $guitool --info --text="$( eval_gettext "Trash cleaned for users" )"
         unset user userlist
     fi
 
@@ -320,7 +320,10 @@ do_kernel_install_new(){
         prevalue="$( grep nvidia-glx /etc/elive/system/packages/packages-to-hold | sed 's|nvidia-glx||g' )"
         nvidia_kernel_package="$( apt-cache search nvidia-kernel${prevalue}-${kernel_version} | tail -1 | awk '{print $1}' )"
         if [[ -z "$nvidia_kernel_package" ]] ; then
-            $guitool --error --text=$"No packages found for:"" nvidia-kernel${prevalue}-${kernel_version}"
+            local message_nvidia
+            message_nvidia="$( printf "$( eval_gettext "No packages found for %s" )" "nvidia-kernel${prevalue}-${kernel_version}" )"
+
+            $guitool --error --text="$message_nvidia"
             return 0
         else
             packages_to_install="$packages_to_install $nvidia_kernel_package nvidia-glx${prevalue}"
@@ -335,7 +338,10 @@ do_kernel_install_new(){
 
             fglrx_kernel_package="$( apt-cache search fglrx-kernel-${kernel_version} | tail -1 | awk '{print $1}' )"
             if [[ -z "$fglrx_kernel_package" ]] ; then
-                $guitool --error --text=$"No packages found for:"" fglrx-kernel-${kernel_version}"
+                local message_ati
+                message_ati="$( printf "$( eval_gettext "No packages found for %s" )" "fglrx-kernel-${kernel_version}" )"
+
+                $guitool --error --text="$message_ati"
                 return 0
             else
                 packages_to_install="$packages_to_install $fglrx_kernel_package fglrx-glx fglrx-driver"
@@ -603,7 +609,10 @@ done
 
    check_result_guitool $result || return
 
-   $guitool --question --text=$"You are going to remove the disk '${result}' from your fstab file in order to allow it to be automounted when is plugged, do you want to continue?" || return
+   local message_remove_disk
+   message_remove_disk="$( printf "$( eval_gettext "You are going to remove the disk %s from your fstab file in order to allow it to be automounted when is plugged, do you want to continue?" )" "$result" )"
+
+   $guitool --question --text="$message_remove_disk" || return
 
    umount $result 2>/dev/null
 
@@ -675,7 +684,7 @@ gui_main_menu(){
         "WinMigrate\n""How to import and migrate things from your 'windows' system""\n"\
         "Translations\n""What about the translations of Elive?""\n"\
         "Exit\n""Exit from here" \
-        | $guitool --list --column=$"Action" --column=$"Description" --width="$width" --height="$height" || echo cancel )"
+        | $guitool --list --column="Action" --column="Description" --width="$width" --height="$height" || echo cancel )"
 
     case $result in
         Health)
