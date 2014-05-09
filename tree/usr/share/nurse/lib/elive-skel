@@ -5,207 +5,207 @@ defaultuser="eliveuser"
 export TEXTDOMAIN="nurse"
 
 messageexitx(){
-   [[ -n $DISPLAY && -f /usr/bin/zenity ]] && zenity --error --text="Sorry, you need to exit from the graphical system or close the program of you like to upgrade, if you need to exit from the graphical system, you need to login in pure console ( Control-Alt-F1 from entrance and Control-Alt-F9 for return to entrance ) and with your user type: elive-skel upgrade"
-   [[ -n $DISPLAY ]] && echo "Sorry, you need to exit from the graphical system for upgrade this configuration and open a terminal in pure console ( Control-Alt-F1 from entrance and Control-Alt-F9 for return to entrance ) and with your user type: elive-skel upgrade"
-   exit 1
+    [[ -n $DISPLAY && -f /usr/bin/zenity ]] && zenity --error --text="Sorry, you need to exit from the graphical system or close the program of you like to upgrade, if you need to exit from the graphical system, you need to login in pure console ( Control-Alt-F1 from entrance and Control-Alt-F9 for return to entrance ) and with your user type: elive-skel upgrade"
+    [[ -n $DISPLAY ]] && echo "Sorry, you need to exit from the graphical system for upgrade this configuration and open a terminal in pure console ( Control-Alt-F1 from entrance and Control-Alt-F9 for return to entrance ) and with your user type: elive-skel upgrade"
+    exit 1
 }
 
 messagedone(){
-   [[ -n $DISPLAY && -f /usr/bin/zenity ]] && zenity --info --text="Upgrade done, try now to restart the application"
-   [[ -z $DISPLAY ]] && echo "Upgrade done, try now to restart the application"
+    [[ -n $DISPLAY && -f /usr/bin/zenity ]] && zenity --info --text="Upgrade done, try now to restart the application"
+    [[ -z $DISPLAY ]] && echo "Upgrade done, try now to restart the application"
 }
 
 messagenoselect(){
-   [[ -n $DISPLAY && -f /usr/bin/zenity ]] && zenity --info --text="You don't have selected correctly a configuration, no upgrade done, try again."
-   [[ -z $DISPLAY ]] && echo "You don't have selected correctly a configuration, no upgrade done, try again."
-   exit 1
+    [[ -n $DISPLAY && -f /usr/bin/zenity ]] && zenity --info --text="You don't have selected correctly a configuration, no upgrade done, try again."
+    [[ -z $DISPLAY ]] && echo "You don't have selected correctly a configuration, no upgrade done, try again."
+    exit 1
 }
 
 
 upgradegraphical(){
-   [[ -n $2 ]] && return
-   nameconf="$( ls -a /etc/skel | egrep "\\." | egrep -v "\\.$" | zenity --list --text='Select a personal configuration for upgrade' --column='Configuration' || echo cancel ; )"
-   [[ "$nameconf" = "cancel" ]] && exit 1  
-   [[ "$nameconf" = "" ]] && { messagenoselect ; exit 1 ; }
-   ps aux | grep e16 | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep e16 && [[ "$nameconf" = ".e16" ]] && messageexitx 
-   ps aux | grep enlightenment | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep enlightenment && [[ "$nameconf" = ".e" ]] && messageexitx 
-   ps aux | grep xchat | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep xchat && [[ "$nameconf" = ".xchat2" ]] && messageexitx 
+    [[ -n $2 ]] && return
+    nameconf="$( ls -a /etc/skel | egrep "\\." | egrep -v "\\.$" | zenity --list --text='Select a personal configuration for upgrade' --column='Configuration' || echo cancel ; )"
+    [[ "$nameconf" = "cancel" ]] && exit 1
+    [[ "$nameconf" = "" ]] && { messagenoselect ; exit 1 ; }
+    ps aux | grep e16 | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep e16 && [[ "$nameconf" = ".e16" ]] && messageexitx
+    ps aux | grep enlightenment | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep enlightenment && [[ "$nameconf" = ".e" ]] && messageexitx
+    ps aux | grep xchat | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep xchat && [[ "$nameconf" = ".xchat2" ]] && messageexitx
 }
 
 upgradeconsole(){
-   [[ -n $2 ]] && return
-   echo -e "Select a conf name (included the point) for upgrade"
-   ls -a /etc/skel/ | egrep "\\." | egrep -v "\\.$" | more
-   echo -e "Enter the name of one configuration for upgrade"
-   read nameconf 
-   [[ "$nameconf" = "" ]] && { messagenoselect ; exit 1 ; }
-   ps aux | grep e16 | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep e16 && [[ "$nameconf" = ".e16" ]] && messageexitx 
-   ps aux | grep enlightenment | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep enlightenment && [[ "$nameconf" = ".e" ]] && messageexitx 
-   ps aux | grep xchat | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep xchat && [[ "$nameconf" = ".xchat2" ]] && messageexitx 
+    [[ -n $2 ]] && return
+    echo -e "Select a conf name (included the point) for upgrade"
+    ls -a /etc/skel/ | egrep "\\." | egrep -v "\\.$" | more
+    echo -e "Enter the name of one configuration for upgrade"
+    read nameconf
+    [[ "$nameconf" = "" ]] && { messagenoselect ; exit 1 ; }
+    ps aux | grep e16 | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep e16 && [[ "$nameconf" = ".e16" ]] && messageexitx
+    ps aux | grep enlightenment | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep enlightenment && [[ "$nameconf" = ".e" ]] && messageexitx
+    ps aux | grep xchat | grep -v grep | awk -v user="$USER" '$1 ~ user { print $NF }' | grep xchat && [[ "$nameconf" = ".xchat2" ]] && messageexitx
 }
 
 upgradedirect(){
-   unset DISPLAY
-   nameconf=$2
+    unset DISPLAY
+    nameconf=$2
 }
 
 upgradefromroot(){
-   [[ ! "$UID" == "0" ]] && { echo -e "You need root for this option" && exit 1 ; }
-   direlegido=$( awk -v usuario=$3 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd )
+    [[ ! "$UID" == "0" ]] && { echo -e "You need root for this option" && exit 1 ; }
+    direlegido=$( awk -v usuario=$3 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd )
 
-   if [[ -z $direlegido ]] ; then
-      echo -e "variable \$direlegido not exists, exiting..."
-      exit 1
-   fi
+    if [[ -z $direlegido ]] ; then
+        echo -e "variable \$direlegido not exists, exiting..."
+        exit 1
+    fi
 
-   if [[ -z $nameconf ]] ; then
-      echo -e "variable \$nameconf not exists, exiting..."
-      exit 3
-   fi
+    if [[ -z $nameconf ]] ; then
+        echo -e "variable \$nameconf not exists, exiting..."
+        exit 3
+    fi
 
-   rm -rf $direlegido/$nameconf.old
-   mv $direlegido/$nameconf $direlegido/$nameconf.old # backuping the old one
+    rm -rf $direlegido/$nameconf.old
+    mv $direlegido/$nameconf $direlegido/$nameconf.old # backuping the old one
 
-   if ! cp -Rp /etc/skel/$nameconf $direlegido/ ; then
-      echo "Not posible to copy to the HOME dir of $3"
-      exit 4
-   fi
+    if ! cp -Rp /etc/skel/$nameconf $direlegido/ ; then
+        echo "Not posible to copy to the HOME dir of $3"
+        exit 4
+    fi
 
-   find $direlegido/$nameconf -type f -exec sed -i "s,/home/$defaultuser,$direlegido,g" '{}' \;
-   find $direlegido/$nameconf -type f -exec sed -i "s,$defaultuser,$3,g" '{}' \;
+    find $direlegido/$nameconf -type f -exec sed -i "s,/home/$defaultuser,$direlegido,g" '{}' \;
+    find $direlegido/$nameconf -type f -exec sed -i "s,$defaultuser,$3,g" '{}' \;
 
-   case $nameconf in
-   .config)
-      cp -a ${direlegido}/.config.old/xpad/* ${direlegido}/.config/xpad/
-      cp -a ${direlegido}/.config.old/transmission ${direlegido}/.config/
-      ;;
-   .e)
-      # Note: only for root mode (installer upgrade), if is done by the user, ask if want a full update
-      cp -a ${direlegido}/.e.old/e/applications/bar/default/.order ${direlegido}/.e/e/applications/bar/default/.order 2>/dev/null
-      cp -a ${direlegido}/.e.old/e/backgrounds/* ${direlegido}/.e/backgrounds/ 2>/dev/null
-      cp -a ${direlegido}/.e.old/e/themes/* ${direlegido}/.e/themes/ 2>/dev/null
-      ;;
-   esac
+    case $nameconf in
+        .config)
+            cp -a ${direlegido}/.config.old/xpad/* ${direlegido}/.config/xpad/
+            cp -a ${direlegido}/.config.old/transmission ${direlegido}/.config/
+            ;;
+        .e)
+            # Note: only for root mode (installer upgrade), if is done by the user, ask if want a full update
+            cp -a ${direlegido}/.e.old/e/applications/bar/default/.order ${direlegido}/.e/e/applications/bar/default/.order 2>/dev/null
+            cp -a ${direlegido}/.e.old/e/backgrounds/* ${direlegido}/.e/backgrounds/ 2>/dev/null
+            cp -a ${direlegido}/.e.old/e/themes/* ${direlegido}/.e/themes/ 2>/dev/null
+            ;;
+    esac
 
-   if [ -z "$4" ]; then
-      chown -R $3:$3 $direlegido/$nameconf
-   else
-      chown -R $3:$4 $direlegido/$nameconf
-   fi
+    if [ -z "$4" ]; then
+        chown -R $3:$3 $direlegido/$nameconf
+    else
+        chown -R $3:$4 $direlegido/$nameconf
+    fi
 
-   exit
+    exit
 }
 
 upgradetype(){
-   [[ -n $2 ]] && upgradedirect $*
-   [[ -n $3 ]] && upgradefromroot $*
-   if [[ -n $DISPLAY && -f /usr/bin/zenity ]] ; then
-      zenity --info --text='Make sure of the program of you like to upgrade, is closed before continue'
-   else
-      echo -e "Make sure of the program of you like to upgrade, is closed before continue"
-   fi
-   #      [[ -n $DISPLAY && -f /usr/bin/zenity ]] || echo -e "Select a conf name (included the point) for upgrade"
-   [[ -n $DISPLAY && -f /usr/bin/zenity ]] && upgradegraphical $*
-   [[ -n $DISPLAY && -f /usr/bin/zenity ]] || upgradeconsole $*
-   [[ -z $nameconf ]] && { messagenoselect ; exit 1 ; }
-   [[ -e $HOME/$nameconf.old ]] && rm -rf $HOME/$nameconf.old
-   mv $HOME/$nameconf $HOME/$nameconf.old
+    [[ -n $2 ]] && upgradedirect $*
+    [[ -n $3 ]] && upgradefromroot $*
+    if [[ -n $DISPLAY && -f /usr/bin/zenity ]] ; then
+        zenity --info --text='Make sure of the program of you like to upgrade, is closed before continue'
+    else
+        echo -e "Make sure of the program of you like to upgrade, is closed before continue"
+    fi
+    #      [[ -n $DISPLAY && -f /usr/bin/zenity ]] || echo -e "Select a conf name (included the point) for upgrade"
+    [[ -n $DISPLAY && -f /usr/bin/zenity ]] && upgradegraphical $*
+    [[ -n $DISPLAY && -f /usr/bin/zenity ]] || upgradeconsole $*
+    [[ -z $nameconf ]] && { messagenoselect ; exit 1 ; }
+    [[ -e $HOME/$nameconf.old ]] && rm -rf $HOME/$nameconf.old
+    mv $HOME/$nameconf $HOME/$nameconf.old
 
-   if ! cp -Rp /etc/skel/$nameconf $HOME/$nameconf ; then
-      if [[ -n $DISPLAY && -f /usr/bin/zenity ]] ; then 
-         zenity --error --text=$"Not possible to copy the $nameconf to the $HOME/$nameconf"
-      else 
-         echo -e "Not posible to copy the $nameconf to the $HOME/$nameconf"
-         exit 5
-      fi
-   fi
-   
-   case $nameconf in
-   .config)
-      cp -a $HOME/.config.old/xpad/* $HOME/.config/xpad/
-      cp -a $HOME/.config.old/transmission $HOME/.config/
-      ;;
-   .e)
-      if [[ ! -z $DISPLAY && -x /usr/bin/zenity ]] ; then 
-         if zenity --question --text=$"Select OK if you want to upgrade your E17 configuration with saving wallpapers, themes, and the bar applications. Select Cancel if you want a full clean upgrade" ; then
+    if ! cp -Rp /etc/skel/$nameconf $HOME/$nameconf ; then
+        if [[ -n $DISPLAY && -f /usr/bin/zenity ]] ; then
+            zenity --error --text=$"Not possible to copy the $nameconf to the $HOME/$nameconf"
+        else
+            echo -e "Not posible to copy the $nameconf to the $HOME/$nameconf"
+            exit 5
+        fi
+    fi
 
-            cp -a $HOME/.e.old/e/applications/bar/default/.order $HOME/.e/e/applications/bar/default/.order 2>/dev/null
-            cp -a $HOME/.e.old/e/backgrounds/* $HOME/.e/backgrounds/ 2>/dev/null
-            cp -a $HOME/.e.old/e/themes/* $HOME/.e/themes/ 2>/dev/null
-         fi
-      fi
-      ;;
-   esac
+    case $nameconf in
+        .config)
+            cp -a $HOME/.config.old/xpad/* $HOME/.config/xpad/
+            cp -a $HOME/.config.old/transmission $HOME/.config/
+            ;;
+        .e)
+            if [[ ! -z $DISPLAY && -x /usr/bin/zenity ]] ; then
+                if zenity --question --text=$"Select OK if you want to upgrade your E17 configuration with saving wallpapers, themes, and the bar applications. Select Cancel if you want a full clean upgrade" ; then
 
-   #       [ "$nameconf" = ".elxstrt" ] && { messagedone ; exit 0 ; }
+                    cp -a $HOME/.e.old/e/applications/bar/default/.order $HOME/.e/e/applications/bar/default/.order 2>/dev/null
+                    cp -a $HOME/.e.old/e/backgrounds/* $HOME/.e/backgrounds/ 2>/dev/null
+                    cp -a $HOME/.e.old/e/themes/* $HOME/.e/themes/ 2>/dev/null
+                fi
+            fi
+            ;;
+    esac
 
-   find $HOME/$nameconf -type f -exec sed -i "s,/home/$defaultuser,$HOME,g" '{}' \;
-   find $HOME/$nameconf -type f -exec sed -i "s,$defaultuser,$USER,g" '{}' \;
+    #       [ "$nameconf" = ".elxstrt" ] && { messagedone ; exit 0 ; }
 
-   #       [ "$nameconf" = ".xchat2" ] && { sed -i "s/J=#$USER.*$/J=#elive\,#elivefun/" $HOME/.xchat2/servlist_.conf 2>/dev/null ; }
-   #       [ "$nameconf" = ".e" ] && { sed -i "s/$USER.edj/elive.edj/g" $HOME/.e/e/config/default/e.cfg 2>/dev/null ; }
-   chown -R $USER $HOME/$nameconf
-   chgrp -R $USER $HOME/$nameconf
+    find $HOME/$nameconf -type f -exec sed -i "s,/home/$defaultuser,$HOME,g" '{}' \;
+    find $HOME/$nameconf -type f -exec sed -i "s,$defaultuser,$USER,g" '{}' \;
 
-   messagedone
+    #       [ "$nameconf" = ".xchat2" ] && { sed -i "s/J=#$USER.*$/J=#elive\,#elivefun/" $HOME/.xchat2/servlist_.conf 2>/dev/null ; }
+    #       [ "$nameconf" = ".e" ] && { sed -i "s/$USER.edj/elive.edj/g" $HOME/.e/e/config/default/e.cfg 2>/dev/null ; }
+    chown -R $USER $HOME/$nameconf
+    chgrp -R $USER $HOME/$nameconf
+
+    messagedone
 }
 
 usermode(){
-   [[ ! "$UID" == "0" ]] && { echo -e "You need root for this option" && exit 1 ; }
-   [[ -z "$2" ]] && { echo -e "No USERNAME parameter in \$2, exiting..." && exit 1 ; }
-   direlegido=`awk -v usuario=$2 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd`
-   lista=`ls -a1 /etc/skel/ | awk 'NR > 2' | grep -v Downloads | grep -v "Documents" | grep -v "Images" | grep -v "Music" | grep -v "Videos" | tr '\n' ' '`
+    [[ ! "$UID" == "0" ]] && { echo -e "You need root for this option" && exit 1 ; }
+    [[ -z "$2" ]] && { echo -e "No USERNAME parameter in \$2, exiting..." && exit 1 ; }
+    direlegido=`awk -v usuario=$2 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd`
+    lista=`ls -a1 /etc/skel/ | awk 'NR > 2' | grep -v Downloads | grep -v "Documents" | grep -v "Images" | grep -v "Music" | grep -v "Videos" | tr '\n' ' '`
 
-   cd $direlegido || { echo "Not posible to enter in the HOME dir of $2" ; exit 4 ; }
+    cd $direlegido || { echo "Not posible to enter in the HOME dir of $2" ; exit 4 ; }
 
-   for i in $lista
-   do
-      [[ -z $i ]] && continue
-      rm -rf $i
-      cp -Rp /etc/skel/$i .
-      find $direlegido/$i -type f -exec sed -i "s,/home/$defaultuser,$direlegido,g" '{}' \;
-      find $direlegido/$i -type f -exec sed -i "s,$defaultuser,$2,g" '{}' \;
+    for i in $lista
+    do
+        [[ -z $i ]] && continue
+        rm -rf $i
+        cp -Rp /etc/skel/$i .
+        find $direlegido/$i -type f -exec sed -i "s,/home/$defaultuser,$direlegido,g" '{}' \;
+        find $direlegido/$i -type f -exec sed -i "s,$defaultuser,$2,g" '{}' \;
 
-      #        [[ "$i" = ".elxstrt" ]] && continue
-      #        [[ "$i" = ".xchat2" ]] && { sed -i "s/J=#$2.*$/J=#elive\,#elivefun/" $direlegido/.xchat2/servlist_.conf 2>/dev/null ; }
-      #        [[ "$i" = ".e" ]] && { sed -i "s/$2.edj/elive.edj/g" $direlegido/.e/e/config/default/e.cfg 2>/dev/null ; }
+        #        [[ "$i" = ".elxstrt" ]] && continue
+        #        [[ "$i" = ".xchat2" ]] && { sed -i "s/J=#$2.*$/J=#elive\,#elivefun/" $direlegido/.xchat2/servlist_.conf 2>/dev/null ; }
+        #        [[ "$i" = ".e" ]] && { sed -i "s/$2.edj/elive.edj/g" $direlegido/.e/e/config/default/e.cfg 2>/dev/null ; }
 
-      if [ -z "$3" ]; then
-         chown -R $2:$2 $i
-      else
-         chown -R $2:$3 $i
-      fi
+        if [ -z "$3" ]; then
+            chown -R $2:$2 $i
+        else
+            chown -R $2:$3 $i
+        fi
 
-   done
+    done
 }
 
 
 alltype(){
-   # esta opcion se lanza como root, entra en el home y cambia todas las palabras de "elive" al usuario del nombre del home, excepto:
-   # el canal del xchat donde tiene que entrar
-   [[ "$UID" == "0" ]] || { echo -e "You need root for this option" && exit 1 ; }
-   cd /home
-   for i in `ls -1`
-   do
-      echo "exporting configurations from the user $defaultuser to $i..."
-      find $i -type f -exec sed -i "s/$defaultuser/$i/g" '{}' \;
-      #	sed -i "s/J=#$i.*$/J=#elive\,#elivefun/" /home/$i/.xchat2/servlist_.conf 2>/dev/null
-      #	sed -i "s/$i.edj/elive.edj/g" /home/$i/.e/e/config/default/e.cfg 2>/dev/null
-   done
+    # esta opcion se lanza como root, entra en el home y cambia todas las palabras de "elive" al usuario del nombre del home, excepto:
+    # el canal del xchat donde tiene que entrar
+    [[ "$UID" == "0" ]] || { echo -e "You need root for this option" && exit 1 ; }
+    cd /home
+    for i in `ls -1`
+    do
+        echo "exporting configurations from the user $defaultuser to $i..."
+        find $i -type f -exec sed -i "s/$defaultuser/$i/g" '{}' \;
+        #	sed -i "s/J=#$i.*$/J=#elive\,#elivefun/" /home/$i/.xchat2/servlist_.conf 2>/dev/null
+        #	sed -i "s/$i.edj/elive.edj/g" /home/$i/.e/e/config/default/e.cfg 2>/dev/null
+    done
 }
 
 addmode(){
-   if [[ -z $3 ]] ; then
-      echo -e "Usage: `basename $0` add conf username"
-      exit
-   fi
-   direlegido=`awk -v usuario=$3 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd`
-   if [[ -z $direlegido ]] ; then
-      echo -e "User not exists"
-      exit
-   fi
-   su -c "cp -r /etc/skel/$2 $direlegido/" $3
-   echo -e "Skel of $2 added to user $3"
+    if [[ -z $3 ]] ; then
+        echo -e "Usage: `basename $0` add conf username"
+        exit
+    fi
+    direlegido=`awk -v usuario=$3 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd`
+    if [[ -z $direlegido ]] ; then
+        echo -e "User not exists"
+        exit
+    fi
+    su -c "cp -r /etc/skel/$2 $direlegido/" $3
+    echo -e "Skel of $2 added to user $3"
 }
 
 
@@ -214,102 +214,102 @@ addmode(){
 #   Interactive tools, does the work
 #-------------------------------------------------------------------------------
 interactive_tools(){
-   id="$1"
-   homeid="${HOME}/${id}"
-   [[ ! -e $homeid ]] && { zenity --error --text="Not found $homeid" ; return 1 ; }
-   rm -rf "${homeid}.old" 2>/dev/null
-   mv "${homeid}" "${homeid}.old"
-   cp -Rp "/etc/skel/${id}" "$homeid" || zenity --error --text="Error found by copy '$id' to the user"
-   find "$homeid" -type f -exec sed -i "s,/home/${defaultuser},${HOME},g" '{}' \;
-   find "$homeid" -type f -exec sed -i "s,${defaultuser},${USER},g" '{}' \;
-   chown -R "$USER" "$homeid"
-   chgrp -R "$USER" "$homeid"
+    id="$1"
+    homeid="${HOME}/${id}"
+    [[ ! -e $homeid ]] && { zenity --error --text="Not found $homeid" ; return 1 ; }
+    rm -rf "${homeid}.old" 2>/dev/null
+    mv "${homeid}" "${homeid}.old"
+    cp -Rp "/etc/skel/${id}" "$homeid" || zenity --error --text="Error found by copy '$id' to the user"
+    find "$homeid" -type f -exec sed -i "s,/home/${defaultuser},${HOME},g" '{}' \;
+    find "$homeid" -type f -exec sed -i "s,${defaultuser},${USER},g" '{}' \;
+    chown -R "$USER" "$homeid"
+    chgrp -R "$USER" "$homeid"
 }
 #-------------------------------------------------------------------------------
 #   Interactive mode, like upgrade but translated and descriptible
 #-------------------------------------------------------------------------------
 interactive(){
-   [[ "$UID" = "0" ]] && { echo -e "Root not allowed for this option" ; return ; }
-   [[ ! -d "$HOME" ]] && { echo -e "E: Home is not a dir" ; return ; }
+    [[ "$UID" = "0" ]] && { echo -e "Root not allowed for this option" ; return ; }
+    [[ ! -d "$HOME" ]] && { echo -e "E: Home is not a dir" ; return ; }
 
-   result="$( echo -e \
-"E17\n"$"Your Desktop. Includes minimizer, pager, bar, features, and all the gagdets""\n"\
-"E17 Confs\n"$"Your Desktop. Only configurations (not include wallpapers, themes, etc)""\n"\
-"Thunar\n"$"Your File manager and Browser. Includes features and actions""\n"\
-"Bash\n"$"Bash (shell) Configurations""\n"\
-"Compiz\n"$"Compiz (ecomorph) configurations""\n"\
-"Terminal\n"$"Terminal configurations""\n"\
-"Web\n"$"Web Browser (Firefox)""\n"\
-"Menus\n"$"Menus of Applications""\n"\
-"Mplayer\n"$"Media Player""\n"\
-"Theme\n"$"Themes of some applications (gtk, qt and kde)""\n"\
-"Other\n"$"Other configuration not listed here""\n"\
-"Exit\n"$"Exit from here" \
-      | zenity --list --text=$"Select a configuration that you want to restore" --column=$"Action" --column=$"Description" --width="600" --height="420" || echo cancel )"
+    result="$( echo -e \
+        "E17\n"$"Your Desktop. Includes minimizer, pager, bar, features, and all the gagdets""\n"\
+        "E17 Confs\n"$"Your Desktop. Only configurations (not include wallpapers, themes, etc)""\n"\
+        "Thunar\n"$"Your File manager and Browser. Includes features and actions""\n"\
+        "Bash\n"$"Bash (shell) Configurations""\n"\
+        "Compiz\n"$"Compiz (ecomorph) configurations""\n"\
+        "Terminal\n"$"Terminal configurations""\n"\
+        "Web\n"$"Web Browser (Firefox)""\n"\
+        "Menus\n"$"Menus of Applications""\n"\
+        "Mplayer\n"$"Media Player""\n"\
+        "Theme\n"$"Themes of some applications (gtk, qt and kde)""\n"\
+        "Other\n"$"Other configuration not listed here""\n"\
+        "Exit\n"$"Exit from here" \
+        | zenity --list --text=$"Select a configuration that you want to restore" --column=$"Action" --column=$"Description" --width="600" --height="420" || echo cancel )"
 
-   case $result in
-   E17)
-      interactive_tools ".e"
-      sleep 1 ; zenity --info
-      ;;
-   "E17 Confs")
-      interactive_tools ".e/e/config"
-      sleep 1 ; zenity --info
-      ;;
-   Thunar)
-      interactive_tools ".config/Thunar"
-      sleep 1 ; zenity --info
-      ;;
-   Bash)
-      interactive_tools ".bash_logout"
-      interactive_tools ".bashrc"
-      interactive_tools ".bash_profile"
-      sleep 1 ; zenity --info
-      ;;
-   Compiz)
-      interactive_tools ".ecomp"
-      sleep 1 ; zenity --info
-      ;;
-   Terminal)
-      interactive_tools ".Xdefaults"
-      sleep 1 ; zenity --info
-      ;;
-   Web)
-      interactive_tools ".mozilla"
-      sleep 1 ; zenity --info
-      ;;
-   Menus)
-      interactive_tools ".config/menus"
-      interactive_tools ".local/share/applications"
-      interactive_tools ".local/share/desktop-directories"
-      sleep 1 ; zenity --info
-      ;;
-   Mplayer)
-      interactive_tools ".mplayer"
-      sleep 1 ; zenity --info
-      ;;
-   Theme)
-      interactive_tools ".qt"
-      interactive_tools ".gtkrc"
-      interactive_tools ".gtkrc-2.0"
-      interactive_tools ".gtkrc.mine"
-      interactive_tools ".kde"
-      interactive_tools ".kderc"
-      sleep 1 ; zenity --info
-      ;;
-   Other)
-      upgradetype $*
-      ;;
-   cancel|Exit)
-      return 0
-      ;;
-   *)
-      echo "Option not recognized"
-      true
-      ;;
-   esac
+    case $result in
+        E17)
+            interactive_tools ".e"
+            sleep 1 ; zenity --info
+            ;;
+        "E17 Confs")
+            interactive_tools ".e/e/config"
+            sleep 1 ; zenity --info
+            ;;
+        Thunar)
+            interactive_tools ".config/Thunar"
+            sleep 1 ; zenity --info
+            ;;
+        Bash)
+            interactive_tools ".bash_logout"
+            interactive_tools ".bashrc"
+            interactive_tools ".bash_profile"
+            sleep 1 ; zenity --info
+            ;;
+        Compiz)
+            interactive_tools ".ecomp"
+            sleep 1 ; zenity --info
+            ;;
+        Terminal)
+            interactive_tools ".Xdefaults"
+            sleep 1 ; zenity --info
+            ;;
+        Web)
+            interactive_tools ".mozilla"
+            sleep 1 ; zenity --info
+            ;;
+        Menus)
+            interactive_tools ".config/menus"
+            interactive_tools ".local/share/applications"
+            interactive_tools ".local/share/desktop-directories"
+            sleep 1 ; zenity --info
+            ;;
+        Mplayer)
+            interactive_tools ".mplayer"
+            sleep 1 ; zenity --info
+            ;;
+        Theme)
+            interactive_tools ".qt"
+            interactive_tools ".gtkrc"
+            interactive_tools ".gtkrc-2.0"
+            interactive_tools ".gtkrc.mine"
+            interactive_tools ".kde"
+            interactive_tools ".kderc"
+            sleep 1 ; zenity --info
+            ;;
+        Other)
+            upgradetype $*
+            ;;
+        cancel|Exit)
+            return 0
+            ;;
+        *)
+            echo "Option not recognized"
+            true
+            ;;
+    esac
 
-   interactive
+    interactive
 }
 
 
@@ -319,23 +319,23 @@ interactive(){
 #-------------------------------------------------------------------------------
 
 
-case $1 in 
-upgrade|-upgrade|--upgrade) upgradetype $*
-   ;;
-interactive) interactive "$@"
-   ;;
-all|-all|--all) alltype $*
-   ;;
-user|-user|--user) usermode $*
-   ;;
-add|-add|--add) addmode $*
-   ;;
-*)
-   echo -e "Use: \"elive-skel all\" for  ADAPT the configurations for all users"
-   echo -e "Use: \"elive-skel upgrade [conf] [user] [group]\"  for UPGRADE your configuration or another user"
-   echo -e "Use: \"elive-skel user username [group]\" for ADAPT the configurations of username"
-   echo -e "Use: \"elive-skel add conf username\" for ADD things, like a upgrade but just updating it without remove other things"
-   ;;
+case $1 in
+    upgrade|-upgrade|--upgrade) upgradetype $*
+        ;;
+    interactive) interactive "$@"
+        ;;
+    all|-all|--all) alltype $*
+        ;;
+    user|-user|--user) usermode $*
+        ;;
+    add|-add|--add) addmode $*
+        ;;
+    *)
+        echo -e "Use: \"elive-skel all\" for  ADAPT the configurations for all users"
+        echo -e "Use: \"elive-skel upgrade [conf] [user] [group]\"  for UPGRADE your configuration or another user"
+        echo -e "Use: \"elive-skel user username [group]\" for ADAPT the configurations of username"
+        echo -e "Use: \"elive-skel add conf username\" for ADD things, like a upgrade but just updating it without remove other things"
+        ;;
 
 esac
 
