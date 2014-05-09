@@ -53,7 +53,7 @@ fi
 
 if [[ ! -f /etc/elive-version ]] ; then
     dialog --clear --colors --backtitle "Elive Systems"  --title "$( eval_gettext "Elive Reparation" )"  \
-        --msgbox "$( eval_gettext "The Elive Reparation mode is a special recovery tool for the end-user. For more information about Elive please visit" )"" http://www.elivecd.org"       14 60
+        --msgbox "$( eval_gettext "The Elive Reparation mode is a special recovery tool for the end-user." )"  14 60
 fi
 
 check_module_installer_result="$(/usr/lib/eliveinstaller/check-installer-module)"
