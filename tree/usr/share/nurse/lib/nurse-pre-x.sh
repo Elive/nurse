@@ -20,6 +20,14 @@ source /usr/share/nurse/lib/nurse-post-x.sh
 source /etc/default/locale ; export LANG ; update-locale
 export EREM="enlightenment_remote_module"
 
+source /usr/lib/elive-tools/functions
+#el_make_environment
+. gettext.sh
+TEXTDOMAIN="nurse"
+export TEXTDOMAIN
+
+guitool=zenity
+
 echo "$LANG" | grep -qiE "(^en|^es|^it|^fr|^ca|^hr|^da|^nl|^tl|^de|^id|^no|^pl|^ro|^sl)" && export TEXTDOMAIN="nurse" || unset TEXTDOMAIN LANG LANGUAGE LC_ALL LC_MESSAGES
 
 ##############################################################################
