@@ -1,31 +1,30 @@
 #!/bin/bash
 ### BEGIN INIT INFO
-# Provides:          
+# Provides:
 # Required-Start:    dbus
 # Required-Stop:     dbus
-# Should-Start:      
-# Should-Stop:       
+# Should-Start:
+# Should-Stop:
 # Default-Start:     2
 # Default-Stop:      1
 # Short-Description: Nurse mode
 # Description:       Special recovery Elive tool
 ### END INIT INFO
 
-export TEXTDOMAIN="nurse"
 
 
-case "$1" in 
-start)
-   if grep -q nurse /proc/cmdline ; then
-      su -l -c "/usr/share/nurse/lib/nurse-pre-x.sh" 
-   fi
-   ;;
-stop)
-   true
-   ;;
-*)
-   true
-   ;;
+case "$1" in
+    start)
+        if grep -q nurse /proc/cmdline ; then
+            su -l -c "/usr/share/nurse/lib/nurse-pre-x.sh"
+        fi
+        ;;
+    stop)
+        true
+        ;;
+    *)
+        true
+        ;;
 esac
 
 

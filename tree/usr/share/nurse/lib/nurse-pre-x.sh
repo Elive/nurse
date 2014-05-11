@@ -18,7 +18,7 @@ source /lib/lsb/init-functions
 source /lib/elive-scripts/elive-functions.sh
 source /usr/share/nurse/lib/nurse-post-x.sh
 source /etc/default/locale ; export LANG ; update-locale
-export EREM="enlightenment_remote_module"
+export EREM="enlightenment_remote"
 
 source /usr/lib/elive-tools/functions
 #el_make_environment
@@ -156,7 +156,7 @@ start_nurse_x(){
    $EREM -lang-set "$LANG"
    sleep 1
    $EREM -module-unload itask-ng
-   $EREM -default-bg-set /usr/share/nurse/images/nurse-wallpaper.edj
+   $EREM -desktop-bg-set /usr/share/nurse/images/nurse-wallpaper.edj
 
    kill $gui_ps 2>/dev/null 1>/dev/null || kill -9 $gui_ps 2>/dev/null 1>/dev/null
    $guitool --info --text="$( eval_gettext "Welcome to the Reparation mode, a tool that allows you to configure and specially repair your system. A lot of different options can be found so please read all of them to know what you can do in this mode." )"
