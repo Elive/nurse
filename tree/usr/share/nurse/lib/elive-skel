@@ -339,6 +339,9 @@ alltype(){
     for i in $(find "$DHOME" -mindepth 1 -maxdepth 1 -type d )
     do
         username="$( basename "$i" )"
+        if [[ "$username" = "eliveuser" ]] ; then
+            continue
+        fi
         #echo "exporting configurations from the user $defaultuser to ${username}..."
 
         convert_all_files "$username"
@@ -488,6 +491,22 @@ interactive(){
     interactive
 }
 
+# Usage
+usage(){
+    echo -e "Usage: $(basename $BASH_SOURCE) options:"
+    echo -e "Use: \"elive-skel all\" for ADAPT the configurations for all users (should be already imported)"
+    echo -e "Use: \"elive-skel upgrade [conf] [user] [group]\"  for UPGRADE your configuration or another user"
+    echo -e "        if no user is set, it upgrades it to your user, if no conf is set, it asks you interactively"
+    echo -e "Use: \"elive-skel interactive: it asks you graphically/interactive a configuration to upgrade (re-import), removing old one"
+    echo -e "Use: \"elive-skel user username [group]\" re-import all the default configurations of username, removing old ones (warning)"
+    echo -e "Use: \"elive-skel add conf username\" for ADD configurations/files, like a upgrade but just updating it without remove other things"
+    exit 1
+}
+
+if [[ -z "${1}" ]] ; then
+    usage
+fi
+
 
 
 #-------------------------------------------------------------------------------
@@ -507,10 +526,7 @@ case "$1" in
     add|-add|--add) addmode "$@"
         ;;
     *)
-        echo -e "Use: \"elive-skel all\" for ADAPT the configurations for all users"
-        echo -e "Use: \"elive-skel upgrade [conf] [user] [group]\"  for UPGRADE your configuration or another user"
-        echo -e "Use: \"elive-skel user username [group]\" for re-import all the skel configurations of username (warning)"
-        echo -e "Use: \"elive-skel add conf username\" for ADD things, like a upgrade but just updating it without remove other things"
+        usage
         ;;
 
 esac
