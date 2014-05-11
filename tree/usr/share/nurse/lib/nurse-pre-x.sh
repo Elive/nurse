@@ -156,7 +156,7 @@ start_nurse_x(){
    $EREM -lang-set "$LANG"
    sleep 1
    $EREM -module-unload itask-ng
-   $EREM -desktop-bg-set /usr/share/nurse/images/nurse-wallpaper.edj
+   $EREM -desktop-bg-set /usr/share/nurse/images/nurse-background.jpg
 
    kill $gui_ps 2>/dev/null 1>/dev/null || kill -9 $gui_ps 2>/dev/null 1>/dev/null
    $guitool --info --text="$( eval_gettext "Welcome to the Reparation mode, a tool that allows you to configure and specially repair your system. A lot of different options can be found so please read all of them to know what you can do in this mode." )"
