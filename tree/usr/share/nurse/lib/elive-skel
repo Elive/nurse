@@ -212,30 +212,32 @@ upgradetype(){
 usermode(){
     # (re)-add all the files from skel to the user home and migrates them (warning!)
     # $2 = user, $3 = group
+    local direlegido
     [[ ! "$UID" == "0" ]] && { echo -e "You need root for this option, warning" && exit 1 ; }
     [[ -z "$2" ]] && { echo -e "No USERNAME parameter in \$2, exiting..." && exit 1 ; }
 
-    #direlegido="$( awk -v usuario=$2 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd )"
-    cd "$DHOME/$2" || { echo "Not posible to enter in the HOME dir of $2" ; exit 4 ; }
+    # note: root is not in DHOME
+    direlegido="$( awk -v usuario="$2" 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd )"
+    cd "$direlegido" || { echo "Not posible to enter in the HOME dir of $2" ; exit 4 ; }
 
     # loop and re-import (wiping out) all the matches from skel
     while read -ru 3 line
     do
         el_debug "deleting and re-importing $line"
 
-        rm -rf "$DHOME/$2/$line"
-        cp -a "/etc/skel/$line" "$DHOME/$2/$line"
+        rm -rf "$direlegido/$line"
+        cp -a "/etc/skel/$line" "$direlegido/$line"
 
         # fix permissions
         if [[ -z "$3" ]] ; then
-            chown -R "$2:$2" "$DHOME/$2/$line"
+            chown -R "$2:$2" "$direlegido/$line"
         else
-            chown -R "$2:$3" "$DHOME/$2/$line"
+            chown -R "$2:$3" "$direlegido/$line"
         fi
     done 3<<< "$( ls -a1 /etc/skel/ | awk 'NR > 2' | grep -vE "^(Desktop,Downloads|Documents|Images|Music|Videos)$"  )"
 
     # append some files
-    cp -a /etc/skel/{Downloads,Documents,Images,Music,Videos,Desktop} "$DHOME/$2/"
+    cp -a /etc/skel/{Downloads,Documents,Images,Music,Videos,Desktop} "$direlegido/"
 
     # fix addresses
     convert_all_files "$2"
@@ -303,11 +305,12 @@ convert_dir(){
 #===============================================================================
 convert_all_files(){
     # pre {{{
-    local user target file
+    local user target file direlegido
     el_debug
     el_security_function_loop 20 || return
 
     username="$1"
+    direlegido="$( awk -v usuario="$username" 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd )"
     el_check_variables "username,defaultuser"
 
     # }}}
@@ -316,11 +319,11 @@ convert_all_files(){
     while read -ru 3 file
     do
         file="${file#/etc/skel/}"
-        sed -i "s|$defaultuser|$username|g" "$DHOME/$username/$file"
+        sed -i "s|$defaultuser|$username|g" "$direlegido/$file"
 
         # fix permissions, if chagned
-        chown -R "$username" "$DHOME/$username/$file"
-        chgrp -R "$username" "$DHOME/$username/$file"
+        chown -R "$username" "$direlegido/$file"
+        chgrp -R "$username" "$direlegido/$file"
 
         el_debug "exporting configurations for user $username and file $file"
     done 3<<< "$( find /etc/skel -type f | grep -viE "\.(mp3|avi|mpg|wav|ogg|mkv|torrent|pdf|epub|doc|jpg|odt)$" )"
@@ -340,6 +343,10 @@ alltype(){
     do
         username="$( basename "$i" )"
         if [[ "$username" = "eliveuser" ]] ; then
+            continue
+        fi
+        # user exist?
+        if ! grep -qs "^${username}:" /etc/passwd ; then
             continue
         fi
         #echo "exporting configurations from the user $defaultuser to ${username}..."
@@ -369,8 +376,7 @@ addmode(){
         el_error "Need to be root"
         exit 1
     fi
-    #direlegido=`awk -v usuario=$3 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd`
-    direlegido="$DHOME/$3"
+    direlegido="$( awk -v usuario="$3" 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd )"
 
     if [[ ! -d "$direlegido" ]] ; then
         el_error "User not exists?"
@@ -381,7 +387,7 @@ addmode(){
     #su -c "cp -a '/etc/skel/$2' '$direlegido/'" "$3"
 
     cp -a "/etc/skel/$2" "$direlegido" "$3"
-    convert_dir  "$3" "$DHOME/$3/$2"
+    convert_dir  "$3" "$direlegido/$2"
     chown -R "$3:$3" "$direlegido"
 
     el_explain 0 "Conf of $2 added to user $3"
