@@ -365,6 +365,10 @@ addmode(){
         echo -e "Usage: `basename $0` (add) conf username"
         exit
     fi
+    if [[ "$UID" != 0 ]] ; then
+        el_error "Need to be root"
+        exit 1
+    fi
     #direlegido=`awk -v usuario=$3 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd`
     direlegido="$DHOME/$3"
 
@@ -373,9 +377,13 @@ addmode(){
         exit
     fi
 
-    el_warning "copying files from skel by user can give errors from unreadable files"
-    su -c "cp -a '/etc/skel/$2' '$direlegido/'" "$3"
+    #el_warning "copying files from skel by user can give errors from unreadable files"
+    #su -c "cp -a '/etc/skel/$2' '$direlegido/'" "$3"
+
+    cp -a "/etc/skel/$2" "$direlegido" "$3"
     convert_dir  "$3" "$DHOME/$3/$2"
+    chown -R "$3:$3" "$direlegido"
+
     el_explain 0 "Conf of $2 added to user $3"
 }
 
