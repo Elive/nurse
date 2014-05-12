@@ -308,8 +308,7 @@ convert_all_files(){
     el_security_function_loop 20 || return
 
     username="$1"
-    el_check_variables "username,target,defaultuser"
-    el_check_dirs "$target"
+    el_check_variables "username,defaultuser"
 
     # }}}
 
