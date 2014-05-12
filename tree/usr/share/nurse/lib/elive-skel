@@ -386,7 +386,7 @@ addmode(){
     #el_warning "copying files from skel by user can give errors from unreadable files"
     #su -c "cp -a '/etc/skel/$2' '$direlegido/'" "$3"
 
-    cp -a "/etc/skel/$2" "$direlegido" "$3"
+    cp -a "/etc/skel/$2" "$direlegido/"
     convert_dir  "$3" "$direlegido/$2"
     chown -R "$3:$3" "$direlegido"
 
