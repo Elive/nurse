@@ -368,7 +368,7 @@ addmode(){
     #direlegido=`awk -v usuario=$3 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd`
     direlegido="$DHOME/$3"
 
-    if [[ -d "$direlegido" ]] ; then
+    if [[ ! -d "$direlegido" ]] ; then
         el_error "User not exists?"
         exit
     fi
