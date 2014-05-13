@@ -1,6 +1,6 @@
 #!/bin/bash
 ### BEGIN INIT INFO
-# Provides:
+# Provides:          nurse
 # Required-Start:    dbus
 # Required-Stop:     dbus
 # Should-Start:
