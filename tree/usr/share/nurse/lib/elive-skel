@@ -388,7 +388,7 @@ addmode(){
 
     cp -a "/etc/skel/$2" "$direlegido/"
     convert_dir  "$3" "$direlegido/$2"
-    chown -R "$3:$3" "$direlegido"
+    chown -R "$3:$3" "$direlegido/$2"
 
     el_explain 0 "Conf of $2 added to user $3"
 }
