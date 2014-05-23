@@ -223,7 +223,7 @@ usermode(){
     # loop and re-import (wiping out) all the matches from skel
     while read -ru 3 line
     do
-        el_debug "deleting and re-importing $line"
+        el_debug "deleting and re-importing $line for $2"
 
         rm -rf "$direlegido/$line"
         cp -a "/etc/skel/$line" "$direlegido/$line"
@@ -238,6 +238,15 @@ usermode(){
 
     # append some files
     cp -a /etc/skel/{Downloads,Documents,Images,Music,Videos,Desktop} "$direlegido/"
+    for file in Downloads Documents Images Music Videos Desktop
+    do
+        # fix permissions
+        if [[ -z "$3" ]] ; then
+            chown -R "$2:$2" "$direlegido/$file"
+        else
+            chown -R "$2:$3" "$direlegido/$file"
+        fi
+    done
 
     # fix addresses
     convert_all_files "$2"
