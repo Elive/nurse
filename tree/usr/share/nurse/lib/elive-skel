@@ -237,16 +237,17 @@ usermode(){
     done 3<<< "$( ls -a1 /etc/skel/ | awk 'NR > 2' | grep -vE "^(Desktop,Downloads|Documents|Images|Music|Videos)$"  )"
 
     # append some files
-    cp -a /etc/skel/{Downloads,Documents,Images,Music,Videos,Desktop} "$direlegido/"
-    for file in Downloads Documents Images Music Videos Desktop
-    do
-        # fix permissions
-        if [[ -z "$3" ]] ; then
-            chown -R "$2:$2" "$direlegido/$file"
-        else
-            chown -R "$2:$3" "$direlegido/$file"
-        fi
-    done
+    # Note: No more needed: they will be added as links when new user creation dynamix startup scripts time (user-manager/deliver)
+    #cp -a /etc/skel/{Downloads,Documents,Images,Music,Videos,Desktop} "$direlegido/"
+    #for file in Downloads Documents Images Music Videos Desktop
+    #do
+        ## fix permissions
+        #if [[ -z "$3" ]] ; then
+            #chown -R "$2:$2" "$direlegido/$file"
+        #else
+            #chown -R "$2:$3" "$direlegido/$file"
+        #fi
+    #done
 
     # fix addresses
     convert_all_files "$2"
