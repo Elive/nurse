@@ -346,6 +346,35 @@ convert_all_files(){
 
 }
 
+#===  FUNCTION  ================================================================
+#          NAME:  restore_user_confs
+#   DESCRIPTION:  restore some important user configurations that we don't want to remove
+#    PARAMETERS:  $1 = user, [$2 = conf(s)]
+#                   confs is optional, space/comma-separated entries
+#       RETURNS:  -
+#===============================================================================
+restore_user_confs(){
+    # pre {{{
+    local user confs conf
+    el_debug
+    el_security_function_loop || return
+
+    user="$1"
+    confs="$2"
+    el_check_variables "user"
+
+    if [[ -z "$confs" ]] ; then
+        confs="$( ls -a1 /etc/skel | awk 'NR > 2' | grep -vE "^(Desktop|Downloads|Documents|Images|Music|Videos|Public)$" | sort -u )"
+    fi
+
+    # }}}
+    while read -ru 3 conf
+    do
+        echo "d: '$conf'"
+    done 3<<< "$( echo "$confs" | tr ' ' '\n' | tr ',' '\n' )"
+
+}
+
 
 alltype(){
     # run from root, no ptions, it changes all the keywords of eliveuser to the new user in every home, warning!
