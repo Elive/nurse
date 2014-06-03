@@ -223,18 +223,24 @@ usermode(){
     # loop and re-import (wiping out) all the matches from skel
     while read -ru 3 line
     do
-        el_debug "deleting and re-importing $line for $2"
+        if el_check_variables "line" ; then
+            el_debug "deleting and re-importing $line for $2"
 
-        rm -rf "$direlegido/$line"
-        cp -a "/etc/skel/$line" "$direlegido/$line"
+            if [[ -d "$direlegido/${line}" ]] ; then
+                rm -rf "${direlegido}/${line}.old"
+                mv "${direlegido}/${line}" "${direlegido}/${line}.old"
+            fi
 
-        # fix permissions
-        if [[ -z "$3" ]] ; then
-            chown -R "$2:$2" "$direlegido/$line"
-        else
-            chown -R "$2:$3" "$direlegido/$line"
+            cp -a "/etc/skel/$line" "$direlegido/$line"
+
+            # fix permissions
+            if [[ -z "$3" ]] ; then
+                chown -R "$2:$2" "$direlegido/$line"
+            else
+                chown -R "$2:$3" "$direlegido/$line"
+            fi
         fi
-    done 3<<< "$( ls -a1 /etc/skel/ | awk 'NR > 2' | grep -vE "^(Desktop,Downloads|Documents|Images|Music|Videos)$"  )"
+    done 3<<< "$( ls -a1 /etc/skel/ | awk 'NR > 2' | grep -vE "^(Desktop|Downloads|Documents|Images|Music|Videos|Public)$"  )"
 
     # append some files
     # Note: No more needed: they will be added as links when new user creation dynamix startup scripts time (user-manager/deliver)
