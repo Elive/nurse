@@ -109,6 +109,7 @@ upgradefromroot(){
     if [[ -e "/etc/skel/$nameconf" ]] ; then
         if cp -a "/etc/skel/$nameconf" "$direlegido/" ; then
             convert_dir "$3" "$direlegido/$nameconf"
+            restore_user_confs "$3" "$nameconf"
         else
             el_error "Not posible to copy to the HOME dir of $3 ($direlegido)"
             exit 4
@@ -178,32 +179,39 @@ upgradetype(){
     [[ -e "$HOME/$nameconf.old" ]] && rm -rf "$HOME/$nameconf.old"
     mv "$HOME/$nameconf" "$HOME/$nameconf.old"
 
-    el_warning "copying files from skel by user can give errors from unreadable files"
+    #el_warning "copying files from skel by user can give errors from unreadable files"
+
     if ! cp -a "/etc/skel/$nameconf" "$HOME/$nameconf" ; then
         if [[ -n $DISPLAY && -f /usr/bin/zenity ]] ; then
-            zenity --error --text="Not possible to copy the $nameconf to $HOME/$nameconf"
+            zenity --error --text="Not possible to copy the $nameconf to $HOME/$nameconf. Recovering to previous state..."
         else
-            el_error "Not posible to copy the $nameconf to the $HOME/$nameconf"
-            exit 5
+            el_error "Not posible to copy the $nameconf to the $HOME/$nameconf. Recovering to previous state..."
         fi
+
+        rm -rf "$HOME/$nameconf"
+        mv "$HOME/$nameconf.old" "$HOME/$nameconf"
+
+        exit
     fi
 
-    case "$nameconf" in
-        .config)
-            cp -a $HOME/.config.old/xpad/* "$HOME/.config/xpad/"
-            cp -a "$HOME/.config.old/transmission" "$HOME/.config/"
-            ;;
-        .e)
-            if [[ -n $DISPLAY && -x /usr/bin/zenity ]] ; then
-                if zenity --question --text="$( eval_gettext "Select OK if you want to upgrade your E17 configuration with saving wallpapers, themes, and the bar applications. Select Cancel if you want a full clean upgrade" )" ; then
+    #case "$nameconf" in
+        #.config)
+            #cp -a $HOME/.config.old/xpad/* "$HOME/.config/xpad/"
+            #cp -a "$HOME/.config.old/transmission" "$HOME/.config/"
+            #;;
+        #.e)
+            #if [[ -n $DISPLAY && -x /usr/bin/zenity ]] ; then
+                #if zenity --question --text="$( eval_gettext "Select OK if you want to upgrade your E17 configuration with saving wallpapers, themes, and the bar applications. Select Cancel if you want a full clean upgrade" )" ; then
 
-                    cp -a $HOME/.e.old/e/applications/bar/default/.order $HOME/.e/e/applications/bar/default/.order 2>/dev/null
-                    cp -a $HOME/.e.old/e/backgrounds/* $HOME/.e/backgrounds/ 2>/dev/null
-                    cp -a $HOME/.e.old/e/themes/* $HOME/.e/themes/ 2>/dev/null
-                fi
-            fi
-            ;;
-    esac
+                    #cp -a $HOME/.e.old/e/applications/bar/default/.order $HOME/.e/e/applications/bar/default/.order 2>/dev/null
+                    #cp -a $HOME/.e.old/e/backgrounds/* $HOME/.e/backgrounds/ 2>/dev/null
+                    #cp -a $HOME/.e.old/e/themes/* $HOME/.e/themes/ 2>/dev/null
+                #fi
+            #fi
+            #;;
+    #esac
+
+    restore_user_confs "$USER" "$nameconf"
 
     convert_dir "$USER" "$HOME/$nameconf"
 
@@ -296,7 +304,7 @@ convert_dir(){
     do
         if grep -qs "$defaultuser" "$file" ; then
             sed -i "s|$defaultuser|$username|g" "$file"
-            el_debug "exporting configurations for user $username and file $file"
+            el_debug "exporting configurations: User '$username', File '$file' "
         fi
     done 3<<< "$( find "$target" -type f | grep -viE "\.(mp3|avi|mpg|wav|ogg|mkv|torrent|pdf|epub|doc|jpg|odt)$" )"
 
@@ -326,12 +334,17 @@ convert_dir(){
 convert_all_files(){
     # pre {{{
     local user target file direlegido
-    el_debug
+    el_debug "$@"
     el_security_function_loop 20 || return
 
     username="$1"
     direlegido="$( awk -v usuario="$username" 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd )"
-    el_check_variables "username,defaultuser"
+    if [[ -z "$direlegido" ]] ; then
+        # if this is run from adduser, the entry is not yet added, so get it in another way
+        direlegido="${DHOME}/$username"
+    fi
+    el_check_variables "username,defaultuser,direlegido"
+    el_check_dirs "$direlegido"
 
     # }}}
 
@@ -339,13 +352,16 @@ convert_all_files(){
     while read -ru 3 file
     do
         file="${file#/etc/skel/}"
-        sed -i "s|$defaultuser|$username|g" "$direlegido/$file"
 
-        # fix permissions, if chagned
-        chown -R "$username" "$direlegido/$file"
-        chgrp -R "$username" "$direlegido/$file"
+        if grep -qs "$defaultuser" "$direlegido/$file" ; then
+            sed -i "s|$defaultuser|$username|g" "$direlegido/$file"
 
-        el_debug "exporting configurations for user $username and file $file"
+            # fix permissions, if chagned
+            chown -R "$username" "$direlegido/$file"
+            chgrp -R "$username" "$direlegido/$file"
+
+            el_debug "exporting configurations: User '$username', File '$file' "
+        fi
     done 3<<< "$( find /etc/skel -type f | grep -viE "\.(mp3|avi|mpg|wav|ogg|mkv|torrent|pdf|epub|doc|jpg|odt)$" )"
 
 }
@@ -366,7 +382,7 @@ restore_user_confs(){
     user="$1"
     confs="$2"
 
-    userhome="$DHOME/$USER"
+    userhome="$DHOME/$user"
     el_check_variables "user"
 
     if [[ -z "$confs" ]] ; then
@@ -397,7 +413,11 @@ restore_user_confs(){
                 mkdir -p "$userhome/.e/e/backgrounds/"
                 for edje in "$userhome"/.e.old/e/backgrounds/*edj
                 do
+                    if ! [[ -s "$edje" ]] ; then
+                        continue
+                    fi
                     if edje_inspector "$edje" 1>/dev/null 2>/dev/null ; then
+                        el_debug "Copying back E background $(basename $edje )"
                         cp "$edje" "$userhome/.e/e/backgrounds/"
                         chown -R "${user}:${user}" "$userhome/.e/e/backgrounds/"
                     fi
@@ -406,7 +426,11 @@ restore_user_confs(){
                 mkdir -p "$userhome/.e/e/themes/"
                 for edje in "$userhome"/.e.old/e/themes/*edj
                 do
+                    if ! [[ -s "$edje" ]] ; then
+                        continue
+                    fi
                     if edje_inspector "$edje" 1>/dev/null 2>/dev/null ; then
+                        el_debug "Copying back E theme $(basename $edje )"
                         cp "$edje" "$userhome/.e/e/themes/"
                         chown -R "${user}:${user}" "$userhome/.e/e/themes/"
                     fi
@@ -606,7 +630,8 @@ usage(){
     echo -e "Use: \"elive-skel upgrade [conf] [user] [group]\"  for UPGRADE your configuration or another user"
     echo -e "        if no user is set, it upgrades it to your user, if no conf is set, it asks you interactively"
     echo -e "Use: \"elive-skel interactive: it asks you graphically/interactive a configuration to upgrade (re-import), removing old one"
-    echo -e "Use: \"elive-skel user username [group]\" re-import all the default configurations of username, removing old ones (warning)"
+    echo -e "Use: \"elive-skel user username [group]\" re-import all the default configurations of username, backuping old ones in a .old dir (warning)"
+    echo -e "Use: \"elive-skel newuser username\"  for convert all the already-copied skel files of the user (adduser already did it)"
     echo -e "Use: \"elive-skel add conf username\" for ADD configurations/files, like a upgrade but just updating it without remove other things"
     exit 1
 }
@@ -623,15 +648,23 @@ fi
 
 
 case "$1" in
-    upgrade|-upgrade|--upgrade) upgradetype "$@"
+    upgrade|-upgrade|--upgrade)
+        upgradetype "$@"
         ;;
-    interactive) interactive "$@"
+    interactive)
+        interactive "$@"
         ;;
-    all|-all|--all) alltype "$@"
+    all|-all|--all)
+        alltype "$@"
         ;;
-    user|-user|--user) usermode "$@"
+    user|-user|--user)
+        usermode "$@"
         ;;
-    add|-add|--add) addmode "$@"
+    newuser|-newuser|--newuser)
+        convert_all_files "$2"
+        ;;
+    add|-add|--add)
+        addmode "$@"
         ;;
     *)
         usage
