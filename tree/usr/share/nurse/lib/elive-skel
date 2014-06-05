@@ -86,12 +86,24 @@ upgradedirect(){
 }
 
 upgradefromroot(){
-    local usuario direlegido
-    #nameconf="$2"
+    local usuario direlegido nameconf subdir
+    nameconf="$2"
+    usuario="$3"
+
+    if [[ "$nameconf" = */* ]] ; then
+        subdir="$( dirname "$nameconf" )"
+        subdir="${subdir%/}/"
+        nameconf="$( basename "$nameconf" )"
+    else
+        subdir=""
+    fi
+
+    el_check_variables "nameconf,usuario"
+
 
     [[ "$UID" != "0" ]] && { echo -e "You need root for this option" && exit 1 ; }
 
-    direlegido=$( awk -v usuario="$3" 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd )
+    direlegido=$( awk -v usuario="$usuario" 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd )
 
     if [[ -z "$direlegido" ]] || ! el_check_dirs "$direlegido" ; then
         el_error "homedir of user not found, exiting..."
@@ -103,19 +115,19 @@ upgradefromroot(){
         exit 3
     fi
 
-    rm -rf "$direlegido/$nameconf.old"
-    mv "$direlegido/$nameconf" "$direlegido/$nameconf.old" # backuping the old one
+    rm -rf "$direlegido/${subdir}$nameconf.old"
+    mv "$direlegido/${subdir}$nameconf" "$direlegido/${subdir}$nameconf.old" # backuping the old one
 
-    if [[ -e "/etc/skel/$nameconf" ]] ; then
-        if cp -a "/etc/skel/$nameconf" "$direlegido/" ; then
-            convert_dir "$3" "$direlegido/$nameconf"
-            restore_user_confs "$3" "$nameconf"
+    if [[ -e "/etc/skel/${subdir}$nameconf" ]] ; then
+        if cp -a "/etc/skel/${subdir}$nameconf" "$direlegido/${subdir}" ; then
+            convert_dir "$usuario" "$direlegido/${subdir}$nameconf"
+            restore_user_confs "$usuario" "${subdir}$nameconf"
         else
-            el_error "Not posible to copy to the HOME dir of $3 ($direlegido)"
+            el_error "Not posible to copy to the HOME dir of $usuario ($direlegido)"
             exit 4
         fi
     else
-        el_error "/etc/skel/$nameconf doesn't exist"
+        el_error "/etc/skel/${subdir}$nameconf doesn't exist"
         exit 5
     fi
 
@@ -138,15 +150,16 @@ upgradefromroot(){
     esac
 
     if [[ -z "$4" ]] ; then
-        chown -R "$3:$3" "$direlegido/$nameconf"
+        chown -R "$usuario:$usuario" "$direlegido/${subdir}$nameconf"
     else
-        chown -R "$3:$4" "$direlegido/$nameconf"
+        chown -R "$usuario:$4" "$direlegido/${subdir}$nameconf"
     fi
 
     exit
 }
 
 upgradetype(){
+    local subdir nameconf
     # $2 = conf, $3 = user, $4 = group
     if [[ -n "$2" ]] ; then
         # we unset display because we don't want to show the GUI if we have the enough data to use (refactor this someday)
@@ -159,6 +172,14 @@ upgradetype(){
         exit
     fi
 
+    # get subdir structure for things like .config/Thunar
+    if [[ "$nameconf" = */* ]] ; then
+        subdir="$( dirname "$nameconf" )"
+        subdir="${subdir%/}/"
+        nameconf="$( basename "$nameconf" )"
+    else
+        subdir=""
+    fi
 
     # if we have not defined $3 (user) is because we want to upgrade OUR user
 
@@ -176,20 +197,21 @@ upgradetype(){
     fi
 
     [[ -z "$nameconf" ]] && { show_message_required_select ; exit 1 ; }
-    [[ -e "$HOME/$nameconf.old" ]] && rm -rf "$HOME/$nameconf.old"
-    mv "$HOME/$nameconf" "$HOME/$nameconf.old"
+
+    [[ -e "$HOME/${subdir}$nameconf.old" ]] && rm -rf "$HOME/${subdir}$nameconf.old"
+    mv "$HOME/${subdir}$nameconf" "$HOME/${subdir}$nameconf.old"
 
     #el_warning "copying files from skel by user can give errors from unreadable files"
 
-    if ! cp -a "/etc/skel/$nameconf" "$HOME/$nameconf" ; then
+    if ! cp -a "/etc/skel/${subdir}$nameconf" "$HOME/${subdir}$nameconf" ; then
         if [[ -n $DISPLAY && -f /usr/bin/zenity ]] ; then
-            zenity --error --text="Not possible to copy the $nameconf to $HOME/$nameconf. Recovering to previous state..."
+            zenity --error --text="Not possible to copy the $nameconf to $HOME/${subdir}$nameconf. Recovering to previous state..."
         else
-            el_error "Not posible to copy the $nameconf to the $HOME/$nameconf. Recovering to previous state..."
+            el_error "Not posible to copy the $nameconf to the $HOME/${subdir}$nameconf. Recovering to previous state..."
         fi
 
-        rm -rf "$HOME/$nameconf"
-        mv "$HOME/$nameconf.old" "$HOME/$nameconf"
+        rm -rf "$HOME/${subdir}$nameconf"
+        mv "$HOME/${subdir}$nameconf.old" "$HOME/${subdir}$nameconf"
 
         exit
     fi
@@ -211,12 +233,12 @@ upgradetype(){
             #;;
     #esac
 
-    restore_user_confs "$USER" "$nameconf"
+    restore_user_confs "$USER" "${subdir}$nameconf"
 
-    convert_dir "$USER" "$HOME/$nameconf"
+    convert_dir "$USER" "$HOME/${subdir}$nameconf"
 
-    chown -R "$USER" "$HOME/$nameconf"
-    chgrp -R "$USER" "$HOME/$nameconf"
+    chown -R "$USER" "$HOME/${subdir}$nameconf"
+    chgrp -R "$USER" "$HOME/${subdir}conf"
 
     show_message_done
 }
@@ -375,7 +397,7 @@ convert_all_files(){
 #===============================================================================
 restore_user_confs(){
     # pre {{{
-    local user userhome confs conf
+    local user userhome confs conf subdir
     el_debug
     el_security_function_loop || return
 
@@ -390,18 +412,38 @@ restore_user_confs(){
     fi
 
     # }}}
+
+
     while read -ru 3 conf
     do
+
+        # get subdir structure for things like .config/Thunar
+        if [[ "$conf" = */* ]] ; then
+            subdir="$( dirname "$conf" )"
+            subdir="${subdir%/}/"
+            conf="$( basename "$conf" )"
+        else
+            subdir=""
+        fi
+
         # checks
-        if [[ ! -d "$userhome/${conf}.old" ]] ; then
+        if [[ ! -d "$userhome/${subdir}${conf}.old" ]] ; then
             # we don't have a backup to restore, skip it
             continue
         fi
 
         case "$conf" in
+            # .config is moved to subdir, like:
+            xpad)
+                if [[ -d "$userhome/${subdir}xpad.old" ]] ; then
+                    cp "$userhome/${subdir}xpad.old"/* "$userhome/${subdir}xpad/"
+                fi
+                ;;
+            # or, if we are using the entire dir:
             .config)
-                # skip
-                true
+                if [[ -d "$userhome/${conf}.old/xpad" ]] ; then
+                    cp "$userhome/${conf}.old/xpad"/* "$userhome/${conf}/xpad/"
+                fi
                 ;;
             .bashrc)
                 # nothing to restore
@@ -439,7 +481,9 @@ restore_user_confs(){
 
                 ;;
             *)
-                el_debug "$conf not yet implemented in ${FUNCNAME}"
+                # nothing (not implemented?) to restore
+                true
+                #el_debug "$conf not yet implemented in ${FUNCNAME}"
                 ;;
         esac
     done 3<<< "$( echo "$confs" | tr ' ' '\n' | tr ',' '\n' )"
