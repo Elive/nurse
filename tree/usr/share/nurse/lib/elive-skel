@@ -116,7 +116,7 @@ upgradefromroot(){
     fi
 
     rm -rf "$direlegido/${subdir}$nameconf.old"
-    mv "$direlegido/${subdir}$nameconf" "$direlegido/${subdir}$nameconf.old" # backuping the old one
+    mv "$direlegido/${subdir}$nameconf" "$direlegido/${subdir}$nameconf.old" 2>/dev/null || true # backuping the old one
 
     if [[ -e "/etc/skel/${subdir}$nameconf" ]] ; then
         if cp -a "/etc/skel/${subdir}$nameconf" "$direlegido/${subdir}" ; then
@@ -199,7 +199,7 @@ upgradetype(){
     [[ -z "$nameconf" ]] && { show_message_required_select ; exit 1 ; }
 
     [[ -e "$HOME/${subdir}$nameconf.old" ]] && rm -rf "$HOME/${subdir}$nameconf.old"
-    mv "$HOME/${subdir}$nameconf" "$HOME/${subdir}$nameconf.old"
+    mv "$HOME/${subdir}$nameconf" "$HOME/${subdir}$nameconf.old" 2>/dev/null || true
 
     #el_warning "copying files from skel by user can give errors from unreadable files"
 
@@ -211,7 +211,7 @@ upgradetype(){
         fi
 
         rm -rf "$HOME/${subdir}$nameconf"
-        mv "$HOME/${subdir}$nameconf.old" "$HOME/${subdir}$nameconf"
+        mv "$HOME/${subdir}$nameconf.old" "$HOME/${subdir}$nameconf" 2>/dev/null || true
 
         exit
     fi
@@ -262,7 +262,7 @@ usermode(){
 
             if [[ -d "$direlegido/${line}" ]] ; then
                 rm -rf "${direlegido}/${line}.old"
-                mv "${direlegido}/${line}" "${direlegido}/${line}.old"
+                mv "${direlegido}/${line}" "${direlegido}/${line}.old" 2>/dev/null || true
             fi
 
             cp -a "/etc/skel/$line" "$direlegido/$line"
@@ -564,7 +564,7 @@ interactive_tools(){
 
     [[ ! -e "$homeid" ]] && { zenity --error --text="Not found $homeid, nothing to upgrade?" ; return 1 ; }
     rm -rf "${homeid}.old" 2>/dev/null
-    mv "${homeid}" "${homeid}.old"
+    mv "${homeid}" "${homeid}.old" 2>/dev/null || true
 
     el_warning "copying files from skel by user can give errors from unreadable files"
     if ! cp -a "/etc/skel/${id}" "$homeid" ; then
