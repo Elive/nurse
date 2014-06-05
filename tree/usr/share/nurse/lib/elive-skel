@@ -8,6 +8,10 @@ export TEXTDOMAIN
 
 defaultuser="eliveuser"
 
+if [[ -z "$DHOME" ]] || [[ ! -d "$DHOME" ]] ; then
+    DHOME="/home"
+fi
+
 
 show_message_exit_x11(){
     local message_exit
@@ -355,12 +359,14 @@ convert_all_files(){
 #===============================================================================
 restore_user_confs(){
     # pre {{{
-    local user confs conf
+    local user userhome confs conf
     el_debug
     el_security_function_loop || return
 
     user="$1"
     confs="$2"
+
+    userhome="$DHOME/$USER"
     el_check_variables "user"
 
     if [[ -z "$confs" ]] ; then
@@ -370,7 +376,48 @@ restore_user_confs(){
     # }}}
     while read -ru 3 conf
     do
-        echo "d: '$conf'"
+        # checks
+        if [[ ! -d "$userhome/${conf}.old" ]] ; then
+            # we don't have a backup to restore, skip it
+            continue
+        fi
+
+        case "$conf" in
+            .config)
+                # skip
+                true
+                ;;
+            .bashrc)
+                # nothing to restore
+                true
+                ;;
+            .e)
+                el_dependencies_check "edje_inspector"
+                # restore wallpapers
+                mkdir -p "$userhome/.e/e/backgrounds/"
+                for edje in "$userhome"/.e.old/e/backgrounds/*edj
+                do
+                    if edje_inspector "$edje" 1>/dev/null 2>/dev/null ; then
+                        cp "$edje" "$userhome/.e/e/backgrounds/"
+                        chown -R "${user}:${user}" "$userhome/.e/e/backgrounds/"
+                    fi
+                done
+                # restore themes
+                mkdir -p "$userhome/.e/e/themes/"
+                for edje in "$userhome"/.e.old/e/themes/*edj
+                do
+                    if edje_inspector "$edje" 1>/dev/null 2>/dev/null ; then
+                        cp "$edje" "$userhome/.e/e/themes/"
+                        chown -R "${user}:${user}" "$userhome/.e/e/themes/"
+                    fi
+                done
+
+
+                ;;
+            *)
+                el_debug "$conf not yet implemented in ${FUNCNAME}"
+                ;;
+        esac
     done 3<<< "$( echo "$confs" | tr ' ' '\n' | tr ',' '\n' )"
 
 }
