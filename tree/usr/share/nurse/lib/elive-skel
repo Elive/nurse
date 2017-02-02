@@ -237,8 +237,7 @@ upgradetype(){
 
     convert_dir "$USER" "$HOME/${subdir}$nameconf"
 
-    chown -R "$USER" "$HOME/${subdir}$nameconf"
-    chgrp -R "$USER" "$HOME/${subdir}conf"
+    chown -R "${USER}:${USER}" "$HOME/${subdir}$nameconf"
 
     show_message_done
 }
@@ -342,8 +341,7 @@ convert_dir(){
     done 3<<< "$( find "$target" )"
 
     # fix permissions, if chagned
-    chown -R "$username" "$target"
-    chgrp -R "$username" "$target"
+    chown -R "${username}:${username}" "$target"
 
 }
 
@@ -379,8 +377,7 @@ convert_all_files(){
             sed -i "s|$defaultuser|$username|g" "$direlegido/$file"
 
             # fix permissions, if chagned
-            chown -R "$username" "$direlegido/$file"
-            chgrp -R "$username" "$direlegido/$file"
+            chown -R "${username}:${username}" "$direlegido/$file"
 
             el_debug "exporting configurations: User '$username', File '$file' "
         fi
@@ -576,8 +573,7 @@ interactive_tools(){
 
     #find "$homeid" -type f -exec sed -i "s,${DHOME}/${defaultuser},${HOME},g" '{}' \;
     #find "$homeid" -type f -exec sed -i "s,${defaultuser},${USER},g" '{}' \;
-    chown -R "$USER" "$homeid"
-    chgrp -R "$USER" "$homeid"
+    chown -R "${USER}:${USER}" "$homeid"
 }
 #-------------------------------------------------------------------------------
 #   Interactive mode, like upgrade but translated and descriptible
