@@ -118,17 +118,22 @@ upgradefromroot(){
     rm -rf "$direlegido/${subdir}${nameconf}.old" 2>/dev/null
     mv "$direlegido/${subdir}$nameconf" "$direlegido/${subdir}${nameconf}.old" 2>/dev/null || true # backuping the old one
 
-    if [[ -e "/etc/skel/${subdir}$nameconf" ]] ; then
-        if cp -a "/etc/skel/${subdir}$nameconf" "$direlegido/${subdir}" ; then
-            convert_dir "$usuario" "$direlegido/${subdir}$nameconf"
-            restore_user_confs "$usuario" "${subdir}$nameconf"
-        else
-            el_error "Not posible to copy to the HOME dir of $usuario ($direlegido)"
-            exit 4
-        fi
+    if [[ "$nameconf" = ".e" ]] && ! [[ -d "/etc/skel/${subdir}$nameconf" ]] ; then
+        el_debug "Ignoring the importing of .e since we don't have it, we will create a new one and import old things"
+        mkdir -p "$HOME/${subdir}$nameconf"
     else
-        el_error "/etc/skel/${subdir}$nameconf doesn't exist"
-        exit 5
+        if [[ -e "/etc/skel/${subdir}$nameconf" ]] ; then
+            if cp -a "/etc/skel/${subdir}$nameconf" "$direlegido/${subdir}" ; then
+                convert_dir "$usuario" "$direlegido/${subdir}$nameconf"
+                restore_user_confs "$usuario" "${subdir}$nameconf"
+            else
+                el_error "Not posible to copy to the HOME dir of $usuario ($direlegido)"
+                exit 4
+            fi
+        else
+            el_error "/etc/skel/${subdir}$nameconf doesn't exist"
+            exit 5
+        fi
     fi
 
 
