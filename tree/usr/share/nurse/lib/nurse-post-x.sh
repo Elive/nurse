@@ -610,7 +610,7 @@ done
    check_result_guitool $result || return
 
    local message_remove_disk
-   message_remove_disk="$( printf "$( eval_gettext "You are going to remove the disk %s from your fstab file in order to allow it to be automounted when is plugged, do you want to continue?" )" "$result" )"
+   message_remove_disk="$( printf "$( eval_gettext "You are going to remove the disk %s from your fstab file in order to allow it to be auto-mounted when is plugged, do you want to continue?" )" "$result" )"
 
    $guitool --question --text="$message_remove_disk" || return
 
@@ -742,7 +742,7 @@ gui_main_menu(){
             $guitool --info --text="$( eval_gettext "For torrents: You need to add again the torrent files to the new application, for continue your downloads just copy the data of your semi-downloaded torrents to the new application temporal files" )"
             ;;
         Translations)
-            $guitool --info --text="$( eval_gettext "You are welcome to collaborate with Elive by making translations, for that you just need to run the application 'eltrans', remember that you do not need to do the translations entirely, so that a small part of the work done by many users results in a big end result. Remember too that the English translations are the most important ones, in order to translate the Elive system to a more correct english just do the translations to the 'en' language, remember too that all the other translations are based on these english ones. Thanks a lot for your collaboration." )"
+            $guitool --info --text="$( eval_gettext "You are welcome to collaborate with Elive by making translations, for that you just need to run the application 'Eltrans', remember that you do not need to do the translations entirely, so that a small part of the work done by many users results in a big end result. Remember too that the English translations are the most important ones, in order to translate the Elive system to a more correct English just do the translations to the 'en' language, remember too that all the other translations are based on these English ones. Thanks a lot for your collaboration." )"
             ;;
         cancel|Exit)
             return 0
