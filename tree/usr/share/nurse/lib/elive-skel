@@ -115,8 +115,8 @@ upgradefromroot(){
         exit 3
     fi
 
-    rm -rf "$direlegido/${subdir}$nameconf.old"
-    mv "$direlegido/${subdir}$nameconf" "$direlegido/${subdir}$nameconf.old" 2>/dev/null || true # backuping the old one
+    rm -rf "$direlegido/${subdir}${nameconf}.old" 2>/dev/null
+    mv "$direlegido/${subdir}$nameconf" "$direlegido/${subdir}${nameconf}.old" 2>/dev/null || true # backuping the old one
 
     if [[ -e "/etc/skel/${subdir}$nameconf" ]] ; then
         if cp -a "/etc/skel/${subdir}$nameconf" "$direlegido/${subdir}" ; then
@@ -136,7 +136,7 @@ upgradefromroot(){
         .config)
             # TODO: actually .config is much bigger, most of the apps confs comes from here, so it will need an independent structure
             mkdir -p "$direlegido/.config/xpad"
-            cp -a "${direlegido}/.config.old/xpad/*" "${direlegido}/.config/xpad/"
+            cp -a "${direlegido}/.config.old/xpad/*" "${direlegido}/.config/xpad/" 2>/dev/null || true
 
             mkdir -p "$direlegido/.config/transmission"
             cp -a "${direlegido}/.config.old/transmission/*" "${direlegido}/.config/transmission/" 2>/dev/null
@@ -433,13 +433,13 @@ restore_user_confs(){
             # .config is moved to subdir, like:
             xpad)
                 if [[ -d "$userhome/${subdir}xpad.old" ]] ; then
-                    cp "$userhome/${subdir}xpad.old"/* "$userhome/${subdir}xpad/"
+                    cp "$userhome/${subdir}xpad.old"/* "$userhome/${subdir}xpad/" 2>/dev/null || true
                 fi
                 ;;
             # or, if we are using the entire dir:
             .config)
                 if [[ -d "$userhome/${conf}.old/xpad" ]] ; then
-                    cp "$userhome/${conf}.old/xpad"/* "$userhome/${conf}/xpad/"
+                    cp "$userhome/${conf}.old/xpad"/* "$userhome/${conf}/xpad/" 2>/dev/null || true
                 fi
                 ;;
             .bashrc)
