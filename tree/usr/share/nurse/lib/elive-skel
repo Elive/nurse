@@ -148,9 +148,9 @@ upgradefromroot(){
             ;;
         .e)
             # Note: only for root mode (installer upgrade), if is done by the user, ask if want a full update
-            cp -a "${direlegido}/.e.old/e17/applications/bar/default/.order" "${direlegido}/.e/e/applications/bar/default/.order" 2>/dev/null
-            cp -a "${direlegido}/.e.old/e17/backgrounds/*" "${direlegido}/.e/backgrounds/" 2>/dev/null
-            cp -a "${direlegido}/.e.old/e17/themes/*" "${direlegido}/.e/themes/" 2>/dev/null
+            cp -a "${direlegido}/.e.old/e17/applications/bar/default/.order" "${direlegido}/.e/e17/applications/bar/default/.order" 2>/dev/null
+            cp -a "${direlegido}/.e.old/e17/backgrounds/*" "${direlegido}/.e/e17/backgrounds/" 2>/dev/null
+            cp -a "${direlegido}/.e.old/e17/themes/*" "${direlegido}/.e/e17/themes/" 2>/dev/null
 
             cp -a "${direlegido}/.e.old/e/applications/bar/default/.order" "${direlegido}/.e/e/applications/bar/default/.order" 2>/dev/null
             cp -a "${direlegido}/.e.old/e/backgrounds/*" "${direlegido}/.e/backgrounds/" 2>/dev/null
