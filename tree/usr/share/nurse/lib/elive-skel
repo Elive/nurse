@@ -143,6 +143,10 @@ upgradefromroot(){
             ;;
         .e)
             # Note: only for root mode (installer upgrade), if is done by the user, ask if want a full update
+            cp -a "${direlegido}/.e.old/e17/applications/bar/default/.order" "${direlegido}/.e/e/applications/bar/default/.order" 2>/dev/null
+            cp -a "${direlegido}/.e.old/e17/backgrounds/*" "${direlegido}/.e/backgrounds/" 2>/dev/null
+            cp -a "${direlegido}/.e.old/e17/themes/*" "${direlegido}/.e/themes/" 2>/dev/null
+
             cp -a "${direlegido}/.e.old/e/applications/bar/default/.order" "${direlegido}/.e/e/applications/bar/default/.order" 2>/dev/null
             cp -a "${direlegido}/.e.old/e/backgrounds/*" "${direlegido}/.e/backgrounds/" 2>/dev/null
             cp -a "${direlegido}/.e.old/e/themes/*" "${direlegido}/.e/themes/" 2>/dev/null
@@ -203,17 +207,22 @@ upgradetype(){
 
     #el_warning "copying files from skel by user can give errors from unreadable files"
 
-    if ! cp -a "/etc/skel/${subdir}$nameconf" "$HOME/${subdir}$nameconf" ; then
-        if [[ -n $DISPLAY && -f /usr/bin/zenity ]] ; then
-            zenity --error --text="Not possible to copy the $nameconf to $HOME/${subdir}$nameconf. Recovering to previous state..."
-        else
-            el_error "Not posible to copy the $nameconf to the $HOME/${subdir}$nameconf. Recovering to previous state..."
+    if [[ "$nameconf" = ".e" ]] && ! [[ -d "/etc/skel/${subdir}$nameconf" ]] ; then
+        el_debug "Ignoring the importing of .e since we don't have it, we will create a new one and import old things"
+        mkdir -p "$HOME/${subdir}$nameconf"
+    else
+        if ! cp -a "/etc/skel/${subdir}$nameconf" "$HOME/${subdir}$nameconf" 2>/dev/null ; then
+            if [[ -n $DISPLAY && -f /usr/bin/zenity ]] ; then
+                zenity --error --text="Not possible to copy the $nameconf to $HOME/${subdir}$nameconf. Recovering to previous state..."
+            else
+                el_error "Not posible to copy the $nameconf to the $HOME/${subdir}$nameconf. Recovering to previous state..."
+            fi
+
+            rm -rf "$HOME/${subdir}$nameconf"
+            mv "$HOME/${subdir}$nameconf.old" "$HOME/${subdir}$nameconf" 2>/dev/null || true
+
+            exit
         fi
-
-        rm -rf "$HOME/${subdir}$nameconf"
-        mv "$HOME/${subdir}$nameconf.old" "$HOME/${subdir}$nameconf" 2>/dev/null || true
-
-        exit
     fi
 
     #case "$nameconf" in
@@ -394,7 +403,7 @@ convert_all_files(){
 #===============================================================================
 restore_user_confs(){
     # pre {{{
-    local user userhome confs conf subdir
+    local user userhome econf confs conf subdir
     el_debug
     el_security_function_loop || return
 
@@ -448,31 +457,35 @@ restore_user_confs(){
                 ;;
             .e)
                 el_dependencies_check "edje_inspector"
-                # restore wallpapers
-                mkdir -p "$userhome/.e/e/backgrounds/"
-                for edje in "$userhome"/.e.old/e/backgrounds/*edj
+                for econf in e e17
                 do
-                    if ! [[ -s "$edje" ]] ; then
-                        continue
-                    fi
-                    if edje_inspector "$edje" 1>/dev/null 2>/dev/null ; then
-                        el_debug "Copying back E background $(basename $edje )"
-                        cp "$edje" "$userhome/.e/e/backgrounds/"
-                        chown -R "${user}:${user}" "$userhome/.e/e/backgrounds/"
-                    fi
-                done
-                # restore themes
-                mkdir -p "$userhome/.e/e/themes/"
-                for edje in "$userhome"/.e.old/e/themes/*edj
-                do
-                    if ! [[ -s "$edje" ]] ; then
-                        continue
-                    fi
-                    if edje_inspector "$edje" 1>/dev/null 2>/dev/null ; then
-                        el_debug "Copying back E theme $(basename $edje )"
-                        cp "$edje" "$userhome/.e/e/themes/"
-                        chown -R "${user}:${user}" "$userhome/.e/e/themes/"
-                    fi
+                    # restore wallpapers
+                    mkdir -p "$userhome/.e/$econf/backgrounds/"
+                    for edje in "$userhome"/.e.old/$econf/backgrounds/*edj
+                    do
+                        if ! [[ -s "$edje" ]] ; then
+                            continue
+                        fi
+                        if edje_inspector "$edje" 1>/dev/null 2>/dev/null ; then
+                            el_debug "Copying back E background "$(basename "$edje" )""
+                            cp "$edje" "$userhome/.e/$econf/backgrounds/"
+                            chown -R "${user}:${user}" "$userhome/.e/$econf/backgrounds/"
+                        fi
+                    done
+
+                    # restore themes
+                    mkdir -p "$userhome/.e/$econf/themes/"
+                    for edje in "$userhome"/.e.old/$econf/themes/*edj
+                    do
+                        if ! [[ -s "$edje" ]] ; then
+                            continue
+                        fi
+                        if edje_inspector "$edje" 1>/dev/null 2>/dev/null ; then
+                            el_debug "Copying back E theme "$(basename "$edje" )""
+                            cp "$edje" "$userhome/.e/$econf/themes/"
+                            chown -R "${user}:${user}" "$userhome/.e/$econf/themes/"
+                        fi
+                    done
                 done
 
 
