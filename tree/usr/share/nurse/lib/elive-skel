@@ -119,7 +119,7 @@ upgradefromroot(){
     mv "$direlegido/${subdir}$nameconf" "$direlegido/${subdir}${nameconf}.old" 2>/dev/null || true # backuping the old one
 
     if [[ "$nameconf" = ".e" ]] && ! [[ -d "/etc/skel/${subdir}$nameconf" ]] ; then
-        el_debug "Ignoring the importing of .e since we don't have it, we will create a new one and import old things"
+        el_debug "Importing E parts to a new E conf"
         mkdir -p "$direlegido/${subdir}$nameconf"
     else
         if [[ -e "/etc/skel/${subdir}$nameconf" ]] ; then
@@ -148,11 +148,12 @@ upgradefromroot(){
             ;;
         .e)
             # Note: only for root mode (installer upgrade), if is done by the user, ask if want a full update
-            cp -a "${direlegido}/.e.old/e17/applications/bar/default/.order" "${direlegido}/.e/e17/applications/bar/default/.order" 2>/dev/null
+            mkdir -p "${direlegido}/.e/e/themes/" "${direlegido}/.e/e/backgrounds/" "${direlegido}/.e/e/applications/bar/default/" "${direlegido}/.e/e17/themes/" "${direlegido}/.e/e17/backgrounds/" "${direlegido}/.e/e17/applications/bar/default/"
+            #cp -a "${direlegido}/.e.old/e17/applications/bar/default/.order" "${direlegido}/.e/e17/applications/bar/default/.order" 2>/dev/null
             cp -a "${direlegido}/.e.old/e17/backgrounds/*" "${direlegido}/.e/e17/backgrounds/" 2>/dev/null
             cp -a "${direlegido}/.e.old/e17/themes/*" "${direlegido}/.e/e17/themes/" 2>/dev/null
 
-            cp -a "${direlegido}/.e.old/e/applications/bar/default/.order" "${direlegido}/.e/e/applications/bar/default/.order" 2>/dev/null
+            #cp -a "${direlegido}/.e.old/e/applications/bar/default/.order" "${direlegido}/.e/e/applications/bar/default/.order" 2>/dev/null
             cp -a "${direlegido}/.e.old/e/backgrounds/*" "${direlegido}/.e/backgrounds/" 2>/dev/null
             cp -a "${direlegido}/.e.old/e/themes/*" "${direlegido}/.e/themes/" 2>/dev/null
             ;;
@@ -213,7 +214,7 @@ upgradetype(){
     #el_warning "copying files from skel by user can give errors from unreadable files"
 
     if [[ "$nameconf" = ".e" ]] && ! [[ -d "/etc/skel/${subdir}$nameconf" ]] ; then
-        el_debug "Ignoring the importing of .e since we don't have it, we will create a new one and import old things"
+        el_debug "Importing E parts to a new E conf"
         mkdir -p "$HOME/${subdir}$nameconf"
     else
         if ! cp -a "/etc/skel/${subdir}$nameconf" "$HOME/${subdir}$nameconf" 2>/dev/null ; then
