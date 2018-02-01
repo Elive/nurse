@@ -193,10 +193,10 @@ upgradetype(){
 
     # if we have not defined $3 (user) is because we want to upgrade OUR user
 
-    if [[ -n "$DISPLAY" && -f /usr/bin/zenity ]] ; then
+    if [[ -n "$DISPLAY" ]] && [[ -x /usr/bin/zenity ]] ; then
         zenity --info --text="$( eval_gettext "Make sure that you have closed the application that you want to upgrade its configuration." )"
     else
-        el_warning "$( eval_gettext "Make sure that you have closed the application that you want to upgrade its configuration." )"
+        NOREPORTS=1 el_warning "$( eval_gettext "Make sure that you have closed the application that you want to upgrade its configuration." )"
     fi
 
     # select which conf to upgrade
@@ -582,7 +582,7 @@ interactive_tools(){
     rm -rf "${homeid}.old" 2>/dev/null
     mv "${homeid}" "${homeid}.old" 2>/dev/null || true
 
-    el_warning "copying files from skel by user can give errors from unreadable files"
+    NOREPORTS=1 el_warning "copying files from skel by user can give errors from unreadable files"
     if ! cp -a "/etc/skel/${id}" "$homeid" ; then
         zenity --error --text="Error found by copy '$id' to the user"
         exit 1
