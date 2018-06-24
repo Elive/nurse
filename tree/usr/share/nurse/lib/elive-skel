@@ -343,7 +343,7 @@ convert_dir(){
                 sed -i "s|$defaultuser|$username|g" "$file"
                 el_debug "exporting configurations: User '$username', File '$file' "
             fi
-        done 3<<< "$( find "$target" -type f | grep -viE "\.(mp3|avi|mpg|wav|ogg|mkv|torrent|pdf|epub|doc|jpg|odt|gif|gbr|gih|gtp|pat|gdyn|ggr|gpl|vbr)$" )"
+        done 3<<< "$( find "$target" -type f | grep -viE "\.(mp3|avi|mpg|wav|ogg|mkv|torrent|pdf|epub|doc|jpg|odt|gif|gbr|gih|gtp|pat|gdyn|ggr|gpl|vbr|vimup|vital|vba|vim|vader|rst|rspec|rb|py|png|otl|org|json|js|jax|adoc|coffee)$" )"
     fi
 
     # rename files / dirs
@@ -399,7 +399,7 @@ convert_all_files(){
 
             el_debug "exporting configurations: User '$username', File '$file' "
         fi
-    done 3<<< "$( find /etc/skel -type f | grep -viE "\.(mp3|avi|mpg|wav|ogg|mkv|torrent|pdf|epub|doc|jpg|odt)$" )"
+    done 3<<< "$( find "/etc/skel" -type f | grep -viE "\.(mp3|avi|mpg|wav|ogg|mkv|torrent|pdf|epub|doc|jpg|odt|gif|gbr|gih|gtp|pat|gdyn|ggr|gpl|vbr|vimup|vital|vba|vim|vader|rst|rspec|rb|py|png|otl|org|json|js|jax|adoc|coffee)$" )"
 
 }
 
