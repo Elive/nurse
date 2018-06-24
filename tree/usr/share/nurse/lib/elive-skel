@@ -339,7 +339,7 @@ convert_dir(){
     if [[ "$defaultuser" != "$username" ]] ; then
         while read -ru 3 file
         do
-            if grep -qs "$defaultuser" "$file" ; then
+            if LC_ALL=C grep -qs "$defaultuser" "$file" ; then
                 sed -i "s|$defaultuser|$username|g" "$file"
                 el_debug "exporting configurations: User '$username', File '$file' "
             fi
@@ -391,7 +391,7 @@ convert_all_files(){
     do
         file="${file#/etc/skel/}"
 
-        if grep -qs "$defaultuser" "$direlegido/$file" ; then
+        if LC_ALL=C grep -qs "$defaultuser" "$direlegido/$file" ; then
             sed -i "s|$defaultuser|$username|g" "$direlegido/$file"
 
             # fix permissions, if chagned
