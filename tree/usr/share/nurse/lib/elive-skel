@@ -336,25 +336,28 @@ convert_dir(){
     # }}}
 
     # only for the files found in skel
-    while read -ru 3 file
-    do
-        if grep -qs "$defaultuser" "$file" ; then
-            sed -i "s|$defaultuser|$username|g" "$file"
-            el_debug "exporting configurations: User '$username', File '$file' "
-        fi
-    done 3<<< "$( find "$target" -type f | grep -viE "\.(mp3|avi|mpg|wav|ogg|mkv|torrent|pdf|epub|doc|jpg|odt)$" )"
+    if [[ "$defaultuser" != "$username" ]] ; then
+        while read -ru 3 file
+        do
+            if grep -qs "$defaultuser" "$file" ; then
+                sed -i "s|$defaultuser|$username|g" "$file"
+                el_debug "exporting configurations: User '$username', File '$file' "
+            fi
+        done 3<<< "$( find "$target" -type f | grep -viE "\.(mp3|avi|mpg|wav|ogg|mkv|torrent|pdf|epub|doc|jpg|odt|gif|gbr|gih|gtp|pat|gdyn|ggr|gpl|vbr)$" )"
+    fi
 
     # rename files / dirs
-    while read -ru 3 file
-    do
-        if [[ "$file" = *"${defaultuser}"* ]] ; then
-            # FIXME: perl dependency
-            rename "s|$defaultuser|$username|" "$file"
+    if [[ "$defaultuser" != "$username" ]] ; then
+        while read -ru 3 file
+        do
+            if [[ "$file" = *"${defaultuser}"* ]] ; then
+                # FIXME: perl dependency
+                rename "s|$defaultuser|$username|g" "$file"
 
-            el_debug "renaming $file with $username"
-        fi
-    done 3<<< "$( find "$target" )"
-
+                el_debug "renaming $file with $username"
+            fi
+        done 3<<< "$( find "$target" )"
+    fi
     # fix permissions, if chagned
     chown -R "${username}:${username}" "$target"
 
