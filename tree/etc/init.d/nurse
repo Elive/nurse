@@ -15,9 +15,11 @@
 
 case "$1" in
     start)
-        if grep -q nurse /proc/cmdline ; then
-            su -l -c "/usr/share/nurse/lib/nurse-pre-x.sh"
-        fi
+        # disabled, not implemented for 3.0
+        true
+        #if grep -q nurse /proc/cmdline ; then
+            #su -l -c "/usr/share/nurse/lib/nurse-pre-x.sh"
+        #fi
         ;;
     stop)
         true
