@@ -196,7 +196,7 @@ upgradetype(){
     if [[ -n "$DISPLAY" ]] && [[ -x /usr/bin/zenity ]] ; then
         zenity --info --text="$( eval_gettext "Make sure that you have closed the application that you want to upgrade its configuration." )"
     else
-        NOREPORTS=1 el_warning "$( eval_gettext "Make sure that you have closed the application that you want to upgrade its configuration." )"
+        NOREPORTS=1 el_info "$( eval_gettext "Make sure that you have closed the application that you want to upgrade its configuration." )"
     fi
 
     # select which conf to upgrade
@@ -218,14 +218,16 @@ upgradetype(){
         mkdir -p "$HOME/${subdir}$nameconf"
     else
         if ! cp -a "/etc/skel/${subdir}$nameconf" "$HOME/${subdir}$nameconf" 2>/dev/null ; then
-            if [[ -n $DISPLAY && -f /usr/bin/zenity ]] ; then
-                zenity --error --text="Not possible to copy the $nameconf to $HOME/${subdir}$nameconf. Recovering to previous state..."
-            else
-                el_error "Not posible to copy the $nameconf to the $HOME/${subdir}$nameconf. Recovering to previous state..."
-            fi
+            NOREPORTS=1 el_warning "We don't have a conf for $HOME/${subdir}${nameconf}, so it will be created as a new default one"
 
-            rm -rf "$HOME/${subdir}$nameconf"
-            mv "$HOME/${subdir}$nameconf.old" "$HOME/${subdir}$nameconf" 2>/dev/null || true
+            #if [[ -n $DISPLAY && -f /usr/bin/zenity ]] ; then
+                #zenity --error --text="Not possible to copy the $nameconf to $HOME/${subdir}$nameconf. Recovering to previous state..."
+            #else
+                #el_error "Not posible to copy the $nameconf to the $HOME/${subdir}$nameconf. Recovering to previous state..."
+            #fi
+
+            #rm -rf "$HOME/${subdir}$nameconf"
+            #mv "$HOME/${subdir}$nameconf.old" "$HOME/${subdir}$nameconf" 2>/dev/null || true
 
             exit
         fi
