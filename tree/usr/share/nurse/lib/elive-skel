@@ -51,7 +51,7 @@ upgradegraphical(){
     [[ -n "$2" ]] && return
 
     # improve this crap
-    nameconf="$( ls -a /etc/skel | egrep "\\." | egrep -v "\\.$" | zenity --list --text="$( eval_gettext "Select a personal configuration for upgrade" )" --column="$( eval_gettext "Configuration" )" || echo cancel ; )"
+    nameconf="$( ls -a /etc/skel | egrep "\\." | egrep -v "\\.$" | egrep -v "\.config" | zenity --list --text="$( eval_gettext "Select a personal configuration for upgrade" )" --column="$( eval_gettext "Configuration" )" || echo cancel ; )"
 
     [[ "$nameconf" = "cancel" ]] && exit 1
     [[ "$nameconf" = "" ]] && { show_message_required_select ; exit 1 ; }
@@ -200,7 +200,7 @@ upgradetype(){
     fi
 
     # select which conf to upgrade
-    if [[ -n "$DISPLAY" && -f /usr/bin/zenity ]] ; then
+    if [[ -n "$DISPLAY" ]] && [[ -f /usr/bin/zenity ]] ; then
         upgradegraphical "$@"
     else
         upgradeconsole "$@"
