@@ -127,7 +127,7 @@ upgradefromroot(){
                 convert_dir "$usuario" "$direlegido/${subdir}$nameconf"
                 restore_user_confs "$usuario" "${subdir}$nameconf"
             else
-                el_error "Not posible to copy to the HOME dir of $usuario ($direlegido)"
+                el_error "Not possible to copy '/etc/skel/${subdir}${nameconf}' to the HOME dir of $usuario ($direlegido), ${direlegido}/${subdir}"
                 exit 4
             fi
         else
