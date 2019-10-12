@@ -146,6 +146,9 @@ upgradefromroot(){
             mkdir -p "$direlegido/.config/transmission"
             cp -a "${direlegido}/.config.old/transmission/*" "${direlegido}/.config/transmission/" 2>/dev/null
             ;;
+        .e16)
+            cp -a "${direlegido}/.e16.old/backgrounds/*" "${direlegido}/.e16/backgrounds/" 2>/dev/null || true
+            ;;
         .e)
             # Note: only for root mode (installer upgrade), if is done by the user, ask if want a full update
             mkdir -p "${direlegido}/.e/e/themes/" "${direlegido}/.e/e/backgrounds/" "${direlegido}/.e/e/applications/bar/default/" "${direlegido}/.e/e17/themes/" "${direlegido}/.e/e17/backgrounds/" "${direlegido}/.e/e17/applications/bar/default/"
