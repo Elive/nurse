@@ -20,7 +20,9 @@ source /usr/share/nurse/lib/nurse-post-x.sh
 source /etc/default/locale ; export LANG ; update-locale
 export EREM="enlightenment_remote"
 
+SOURCE="$0"
 source /usr/lib/elive-tools/functions
+REPORTS="1"
 #el_make_environment
 . gettext.sh
 TEXTDOMAIN="nurse"

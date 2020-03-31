@@ -1,6 +1,8 @@
 #!/bin/bash
+SOURCE="$0"
 source /etc/adduser.conf
 source /usr/lib/elive-tools/functions
+REPORTS="1"
 #el_make_environment
 . gettext.sh
 TEXTDOMAIN="nurse"
