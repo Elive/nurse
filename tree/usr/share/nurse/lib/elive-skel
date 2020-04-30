@@ -125,7 +125,8 @@ upgradefromroot(){
         mkdir -p "$direlegido/${subdir}$nameconf"
     else
         if [[ -e "/etc/skel/${subdir}$nameconf" ]] ; then
-            if cp -a "/etc/skel/${subdir}$nameconf" "$direlegido/${subdir}" ; then
+            mkdir -p "$direlegido/$subdir"
+            if cp -a "/etc/skel/${subdir}$nameconf" "$direlegido/${subdir}/" ; then
                 convert_dir "$usuario" "$direlegido/${subdir}$nameconf"
                 restore_user_confs "$usuario" "${subdir}$nameconf"
             else
@@ -222,6 +223,7 @@ upgradetype(){
         el_debug "Importing E parts to a new E conf"
         mkdir -p "$HOME/${subdir}$nameconf"
     else
+        mkdir -p "$HOME/${subdir}"
         if ! cp -a "/etc/skel/${subdir}$nameconf" "$HOME/${subdir}$nameconf" 2>/dev/null ; then
             NOREPORTS=1 el_warning "We don't have a conf for $HOME/${subdir}${nameconf}, so it will be created as a new default one"
 
