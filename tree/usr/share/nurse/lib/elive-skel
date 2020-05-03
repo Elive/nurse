@@ -100,7 +100,7 @@ upgradefromroot(){
         subdir=""
     fi
 
-    el_check_variables "nameconf,usuario"
+    el_check_variables "nameconf|usuario"
 
 
     [[ "$UID" != "0" ]] && { echo -e "You need root for this option" && exit 1 ; }
@@ -331,7 +331,7 @@ convert_dir(){
 
     username="$1"
     target="$2"
-    el_check_variables "username,target,defaultuser"
+    el_check_variables "username|target|defaultuser"
 
     if ! [[ -d "$target" ]] ; then
         if [[ -f "$target" ]] ; then
@@ -390,7 +390,7 @@ convert_all_files(){
         # if this is run from adduser, the entry is not yet added, so get it in another way
         direlegido="${DHOME}/$username"
     fi
-    el_check_variables "username,defaultuser,direlegido"
+    el_check_variables "username|defaultuser|direlegido"
     el_check_dirs "$direlegido"
 
     # }}}
