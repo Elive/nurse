@@ -22,7 +22,7 @@ export EREM="enlightenment_remote"
 
 SOURCE="$0"
 source /usr/lib/elive-tools/functions
-REPORTS="1"
+EL_REPORTS="1"
 #el_make_environment
 . gettext.sh
 TEXTDOMAIN="nurse"
