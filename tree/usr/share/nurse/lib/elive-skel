@@ -50,7 +50,7 @@ show_message_required_select(){
 
 upgradegraphical(){
     # return if we have conf
-    [[ -n "$2" ]] && return
+    [[ -n "$2" ]] && return 0
 
     # improve this crap
     nameconf="$( ls -a /etc/skel | egrep "\\." | egrep -v "\\.$" | egrep -v "\.config" | zenity --list --text="$( eval_gettext "Select a personal configuration for upgrade" )" --column="$( eval_gettext "Configuration" )" || echo cancel ; )"
@@ -67,7 +67,7 @@ upgradegraphical(){
 
 upgradeconsole(){
     # return if we have conf
-    [[ -n $2 ]] && return
+    [[ -n $2 ]] && return 0
 
     echo -e "Select a conf name (included the dot if any) for upgrade"
     ls -a /etc/skel/ | egrep "\\." | egrep -v "\\.$" | less
@@ -327,7 +327,7 @@ convert_dir(){
     # pre {{{
     local user target file
     el_debug
-    el_security_function_loop 20 || return
+    el_security_function_loop 20 || return 0
 
     username="$1"
     target="$2"
@@ -338,7 +338,7 @@ convert_dir(){
             sed -i "s|$defaultuser|$username|g" "$target"
         else
             el_debug "$target is not a dir? ignoring..."
-            return
+            return 0
         fi
     fi
 
@@ -382,7 +382,7 @@ convert_all_files(){
     # pre {{{
     local user target file direlegido
     el_debug "$@"
-    el_security_function_loop 20 || return
+    el_security_function_loop 20 || return 0
 
     username="$1"
     direlegido="$( awk -v usuario="$username" 'BEGIN{FS=":"}{if ($1 == usuario) print $6 }' /etc/passwd )"
@@ -423,7 +423,7 @@ restore_user_confs(){
     # pre {{{
     local user userhome econf confs conf subdir
     el_debug
-    el_security_function_loop || return
+    el_security_function_loop || return 0
 
     user="$1"
     confs="$2"

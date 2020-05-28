@@ -72,7 +72,7 @@ install_dependency(){
 #       RETURNS:
 #===============================================================================
 do_check_installed_packages(){
-    $guitool --question --text="$( eval_gettext "Do you want to check your installed packages? Your system can run wrongly if it doesn't has installed all the default packages included by Elive, it is very recommended to do this check. Do you want to continue?" )" || return
+    $guitool --question --text="$( eval_gettext "Do you want to check your installed packages? Your system can run wrongly if it doesn't has installed all the default packages included by Elive, it is very recommended to do this check. Do you want to continue?" )" || return 0
 
     dpkg -l | awk '{print $1" "$2}' | grep -E "(^ii|^hi)" | awk '{print $2}' > /tmp/.installed-packages
 
@@ -389,7 +389,7 @@ do_wifi_configure(){
     mkdir -p /tmp/ndiswrapper/cab
     $guitool --info --text="$( eval_gettext "Please give me the directory where I should search for the windows driver of your wifi card, it can be a CDROM on the /media directory, or an entire Windows partition on /mnt" )"
     ndis_search_dir="$( $guitool --file-selection --directory || echo cancel )"
-    [[ "$ndis_search_dir" = "cancel" ]] && return
+    [[ "$ndis_search_dir" = "cancel" ]] && return 0
 
     ( sleep 4 ; echo 25 ; sleep 10000 ) | $guitool --progress --pulsate --auto-close --text="$( eval_gettext "Searching possible drivers, this operation can take a long time, please be patient" )" &
     pid=$!
@@ -425,7 +425,7 @@ do_wifi_configure(){
     sync
     modprobe ndiswrapper
 
-    $guitool --question --text="$( eval_gettext "It is your wireless card working now ? Try it in the internet configuration and if not works, click to the Cancel button (otherwise we will install it permanently)" )" || return
+    $guitool --question --text="$( eval_gettext "It is your wireless card working now ? Try it in the internet configuration and if not works, click to the Cancel button (otherwise we will install it permanently)" )" || return 0
 
     grep ndiswrapper /etc/modules || echo "ndiswrapper" >> /etc/modules
     lsmod | awk '{print $1}' | grep -q b43 && echo "blacklist b43" >> /etc/modprobe.d/blacklist
@@ -446,7 +446,7 @@ do_remove_win_apps(){
 
     result="$( ls -1 $DHOME | $guitool --list --column="$( eval_gettext "User" )" --text="$( eval_gettext "Select the desired user" )" || echo cancel )"
 
-    check_result_guitool $result || return
+    check_result_guitool $result || return 0
 
     if [[ -d "${DHOME}/$result" ]] ; then
         rm -rf ${DHOME}/${result}/.local/share/applications/wine
@@ -454,7 +454,7 @@ do_remove_win_apps(){
         rm -rf ${DHOME}/${result}/.wine 2>/dev/null
     else
         $guitool --error --text="User directory '${DHOME}/$result' not exists"
-        return
+        return 0
     fi
     $guitool --info
 }
@@ -468,10 +468,10 @@ do_remove_win_apps(){
 #       RETURNS:
 #===============================================================================
 do_remove_menu_apps(){
-    $guitool --question --text="$( eval_gettext "This tool is for removal of the application entries of your menus, sometimes they are badly written and you may need to remove them in order to have them working correctly. Do you want to continue?" )" || return
+    $guitool --question --text="$( eval_gettext "This tool is for removal of the application entries of your menus, sometimes they are badly written and you may need to remove them in order to have them working correctly. Do you want to continue?" )" || return 0
     result="$( ls -1 $DHOME | $guitool --list --column="$( eval_gettext "User" )" --text="$( eval_gettext "Select the desired user" )" || echo cancel )"
 
-    check_result_guitool $result || return
+    check_result_guitool $result || return 0
 
     if [[ -d "${DHOME}/${result}/.local/share/applications" ]] ; then
         cd ${DHOME}/${result}/.local/share/applications
@@ -511,7 +511,7 @@ done
 
    else
        $guitool --error --text="User directory '${DHOME}/${result}/.local/share/applications' not exists"
-       return
+       return 0
    fi
 
    $guitool --info
@@ -526,11 +526,11 @@ done
 #       RETURNS:
 #===============================================================================
 do_update_configurations(){
-    $guitool --question --text="$( eval_gettext "This tool is to reset the user configurations to the defaults set by Elive, your configuration for such application will be erased, do you want to continue?" )" || return
+    $guitool --question --text="$( eval_gettext "This tool is to reset the user configurations to the defaults set by Elive, your configuration for such application will be erased, do you want to continue?" )" || return 0
 
     result="$( ls -1 $DHOME | $guitool --list --column="$( eval_gettext "User" )" --text="$( eval_gettext "Select the desired user" )" || echo cancel )"
 
-    check_result_guitool $result || return
+    check_result_guitool $result || return 0
 
     if [[ -d "${DHOME}/$result" ]] ; then
         xhost +
@@ -550,11 +550,11 @@ do_update_configurations(){
 #       RETURNS:
 #===============================================================================
 do_recover_configuration(){
-    $guitool --question --text="$( eval_gettext "This tool is for recovery of an old updated configuration, there's no history so you can recover it only to the last updated one. Do you want to continue?" )" || return
+    $guitool --question --text="$( eval_gettext "This tool is for recovery of an old updated configuration, there's no history so you can recover it only to the last updated one. Do you want to continue?" )" || return 0
 
     result="$( ls -1 $DHOME | $guitool --list --column="$( eval_gettext "User" )" --text="$( eval_gettext "Select the desired user" )" || echo cancel )"
 
-    check_result_guitool "$result" || return
+    check_result_guitool "$result" || return 0
 
     if [[ -d "${DHOME}/$result" ]] ; then
 
@@ -607,12 +607,12 @@ done
        return 0
    fi
 
-   check_result_guitool $result || return
+   check_result_guitool $result || return 0
 
    local message_remove_disk
    message_remove_disk="$( printf "$( eval_gettext "You are going to remove the disk %s from your fstab file in order to allow it to be auto-mounted when is plugged, do you want to continue?" )" "$result" )"
 
-   $guitool --question --text="$message_remove_disk" || return
+   $guitool --question --text="$message_remove_disk" || return 0
 
    umount $result 2>/dev/null
 
