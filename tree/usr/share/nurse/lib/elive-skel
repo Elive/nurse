@@ -150,7 +150,9 @@ upgradefromroot(){
             cp -a "${direlegido}/.config.old/transmission/*" "${direlegido}/.config/transmission/" 2>/dev/null
             ;;
         .e16)
+            mkdir -p "${direlegido}/.e16/backgrounds"
             cp -a "${direlegido}/.e16.old/backgrounds/*" "${direlegido}/.e16/backgrounds/" 2>/dev/null || true
+            #cp -a "${direlegido}/.e16.old/themes/*" "${direlegido}/.e16/themes/" 2>/dev/null || true  # themes can be messed up, so better not include them
             ;;
         .e)
             # Note: only for root mode (installer upgrade), if is done by the user, ask if want a full update
